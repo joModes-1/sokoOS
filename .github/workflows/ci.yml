@@ -66,7 +66,7 @@ jobs:
       DATABASE_URL: postgresql://sokoos:sokoos@localhost:5432/sokoos_test
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: test-jwt-secret-min-32-chars-long
-      JWT_REFRESH_SECRET: test-refresh-secret-min-32-chars
+      REFRESH_TOKEN_SECRET: test-refresh-secret-min-32-chars
       NODE_ENV: test
 
     steps:
