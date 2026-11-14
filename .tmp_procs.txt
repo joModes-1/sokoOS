@@ -1,0 +1,33 @@
+﻿
+   Id StartTime                     CPU        WS
+   -- ---------                     ---        --
+ 7340 11/12/2026 11:58:00 AM   2.328125  10055680
+17488 11/12/2026 11:31:55 AM   13.15625   2203648
+22412 11/12/2026 11:35:04 AM     133.75   6103040
+30612 11/12/2026 11:35:04 AM 164.765625  66850816
+44592 11/13/2026 12:38:49 AM   14.65625 117035008
+50704 11/12/2026 9:18:43 PM     0.28125  37990400
+61328 11/13/2026 12:48:59 AM     6.0625 119685120
+62760 11/12/2026 11:58:18 AM    7.53125   8052736
+
+
+
+Length LastWriteTime        
+------ -------------        
+   195 11/13/2026 1:03:54 AM
+
+
+no BUILD_ID yet
+
+ProcessId cmd                                                                                                            
+--------- ---                                                                                                            
+    17488 C:\nvm4w\nodejs\node.exe  --max-old-space-size=8119 C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules...
+    22412 C:\nvm4w\nodejs\node.exe C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules\openclaw\dist\process\supe...
+    30612 C:\nvm4w\nodejs\node.exe  --max-old-space-size=8119 C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules...
+     7340 "C:\nvm4w\nodejs\\node.exe"  "C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js" run dev                         
+    62760 "node"   "C:\Users\joModes\Downloads\carwash\server\node_modules\.bin\\..\ts-node-dev\lib\bin.js" -r tsconfi...
+    50704 "C:\nvm4w\nodejs\\node.exe"   "C:\nvm4w\nodejs\\node_modules\freebuff\index.js"                                
+    44592 node  dist/main                                                                                                
+    61328 node   "C:\Users\joModes\Downloads\sokoos-complete\sokoos\apps\web\node_modules\.bin\\..\next\dist\bin\next"...
+
+

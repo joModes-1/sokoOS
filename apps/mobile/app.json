@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "SokoOS",
+    "slug": "sokoos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#3A2216"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "org.sokoos.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#3A2216"
+      },
+      "package": "org.sokoos.app",
+      "permissions": ["CAMERA", "VIBRATE"]
+    },
+    "plugins": [
+      "expo-font",
+      "expo-camera"
+    ]
+  }
+}

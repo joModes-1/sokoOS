@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+.turbo/
+
+# Environment — commit examples only (.env.example); real secrets stay local / in the provider
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# Native build output
+src-tauri/target/
+.expo/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local helper files
+.start_report.txt
+.tmp*

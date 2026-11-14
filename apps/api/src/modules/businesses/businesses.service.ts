@@ -1,0 +1,155 @@
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import type { RegisterBusinessInput } from '@sokoos/shared';
+import { ROLE_DEFAULTS } from '@sokoos/shared';
+
+const SYSTEM_PERMISSIONS = [
+  { code: 'admin.*', category: 'admin', description: 'Full access' },
+  { code: 'sales.create', category: 'sales', description: 'Create sales' },
+  { code: 'sales.refund', category: 'sales', description: 'Process refunds' },
+  { code: 'sales.discount', category: 'sales', description: 'Apply discounts' },
+  { code: 'sales.view', category: 'sales', description: 'View sales history' },
+  { code: 'inventory.view', category: 'inventory', description: 'View inventory' },
+  { code: 'inventory.adjust', category: 'inventory', description: 'Make adjustments' },
+  { code: 'inventory.count', category: 'inventory', description: 'Start stock counts' },
+  { code: 'transfer.request', category: 'transfer', description: 'Request transfers' },
+  { code: 'transfer.approve', category: 'transfer', description: 'Approve transfers' },
+  { code: 'transfer.dispatch', category: 'transfer', description: 'Dispatch transfers' },
+  { code: 'transfer.receive', category: 'transfer', description: 'Receive transfers' },
+  { code: 'po.create', category: 'purchasing', description: 'Create purchase orders' },
+  { code: 'po.submit', category: 'purchasing', description: 'Submit purchase orders' },
+  { code: 'po.confirm', category: 'purchasing', description: 'Confirm purchase orders' },
+  { code: 'po.receive', category: 'purchasing', description: 'Receive goods' },
+  { code: 'catalogue.manage', category: 'catalogue', description: 'Manage catalogue' },
+  { code: 'finance.view', category: 'finance', description: 'View finance' },
+  { code: 'finance.close', category: 'finance', description: 'Close the day' },
+  { code: 'reports.view', category: 'reports', description: 'View reports' },
+  { code: 'users.manage', category: 'users', description: 'Manage users' },
+  { code: 'users.invite', category: 'users', description: 'Invite users' },
+];
+
+@Injectable()
+export class BusinessesService {
+  constructor(private prisma: PrismaService) {}
+
+  async registerBusiness(userId: string, input: RegisterBusinessInput) {
+    // Generate slug if not provided
+    const baseSlug = input.slug ?? input.businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 50);
+    let slug = baseSlug;
+    let attempt = 0;
+    while (true) {
+      const exists = await this.prisma.business.findFirst({ where: { slug } });
+      if (!exists) break;
+      slug = `${baseSlug}-${++attempt}`;
+    }
+
+    // Create business, settings, default branch, roles, and owner role in one transaction
+    return this.prisma.$transaction(async (tx) => {
+      // Ensure permissions catalogue exists
+      await tx.permission.createMany({
+        data: SYSTEM_PERMISSIONS,
+        skipDuplicates: true,
+      });
+
+      // Create business
+      const business = await tx.business.create({
+        data: {
+          legalName: input.businessName,
+          slug,
+          businessType: input.businessType,
+          tin: input.tin,
+          currency: 'UGX',
+          ownerUserId: userId,
+          status: 'ACTIVE',
+        },
+      });
+
+      // Business settings
+      await tx.businessSettings.create({
+        data: { businessId: business.id },
+      });
+
+      // Subscription (read-only record)
+      await tx.subscription.create({
+        data: {
+          businessId: business.id,
+          planCode: 'FREE',
+          status: 'ACTIVE',
+          periodStart: new Date(),
+          periodEnd: new Date(Date.now() + 365 * 24 * 60 * 60_000),
+        },
+      });
+
+      // Default branch
+      const branch = await tx.branch.create({
+        data: {
+          businessId: business.id,
+          name: input.branchName,
+          code: input.branchCode,
+          status: 'ACTIVE',
+        },
+      });
+
+      // Create the 4 system roles
+      const roleCodes = ['BUSINESS_ADMIN', 'BRANCH_MANAGER', 'CASHIER', 'INVENTORY_CLERK'] as const;
+      const roleNames = { BUSINESS_ADMIN: 'Business Admin', BRANCH_MANAGER: 'Branch Manager', CASHIER: 'Cashier', INVENTORY_CLERK: 'Inventory Clerk' };
+      const roles: { id: string; code: string }[] = [];
+      for (const code of roleCodes) {
+        const role = await tx.role.create({
+          data: { businessId: business.id, code, name: roleNames[code], isSystem: true },
+        });
+        roles.push({ id: role.id, code });
+      }
+
+      // Assign permissions to each role
+      for (const role of roles) {
+        const rolePerms = ROLE_DEFAULTS[role.code as keyof typeof ROLE_DEFAULTS] as readonly string[];
+        for (const permCode of rolePerms) {
+          const perm = await tx.permission.findFirst({ where: { code: permCode } });
+          if (perm) {
+            await tx.rolePermission.createMany({
+              data: [{ roleId: role.id, permissionId: perm.id }],
+              skipDuplicates: true,
+            });
+          }
+        }
+      }
+
+      // Assign BUSINESS_ADMIN role to the owner
+      const adminRole = roles.find(r => r.code === 'BUSINESS_ADMIN')!;
+      await tx.userRole.create({
+        data: { userId, businessId: business.id, roleId: adminRole.id, grantedBy: userId },
+      });
+
+      // Assign owner to default branch
+      await tx.userBranch.create({
+        data: { userId, businessId: business.id, branchId: branch.id, assignedBy: userId },
+      });
+
+      return { business, branch };
+    });
+  }
+
+  async getProfile(businessId: string, userId: string) {
+    const business = await this.prisma.business.findFirst({
+      where: { id: businessId, deletedAt: null },
+      include: { settings: true, subscription: true },
+    });
+    if (!business) throw new NotFoundException('Business not found');
+    return business;
+  }
+
+  async updateProfile(businessId: string, userId: string, data: Partial<{ legalName: string; tin: string; contactPhone: string; address: object }>) {
+    return this.prisma.business.update({
+      where: { id: businessId },
+      data,
+    });
+  }
+
+  async updateSettings(businessId: string, data: Partial<{ defaultTaxRateBp: number; allowNegativeStock: boolean; receiptFooterText: string; timezone: string }>) {
+    return this.prisma.businessSettings.update({
+      where: { businessId },
+      data,
+    });
+  }
+}

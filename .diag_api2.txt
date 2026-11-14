@@ -1,0 +1,81 @@
+shell PORT env = []
+shell NODE_ENV env = []
+=== listening ports owned by api pid 1244 ===
+none
+=== all listening ports ===
+135, 139, 445, 623, 1035, 3000, 3306, 3456, 3972, 4002, 5040, 5357, 5432, 6144, 6342, 7680, 8081, 8082, 16992, 18789
+=== api log tail ===
+(node:45000) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:45 [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +433ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mThrottlerModule dependencies initialized[39m[38;5;3m +61ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDiscoveryModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mBusinessesModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mBranchesModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRbacModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuditModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPaymentsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mReportsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJobsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mImportsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAttachmentsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mScheduleModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mInventoryModule dependencies initialized[39m[38;5;3m +3ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCatalogueModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTransfersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPurchasingModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSalesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 1244  - [39m14/11/2026, 12:08:46 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+=== direct run of dist/main (10s capture) ===
+direct-run alive after 10s = False
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/notifications, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/notifications/unread-count, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/notifications/:id/read, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/notifications/read-all, PATCH} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mReportsController {/v1/reports}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/reports/dashboard, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/reports/sales, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/reports/stock, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/reports/low-stock, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/reports/purchasing, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mJobsController {/v1/jobs}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/jobs, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/jobs/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mImportsController {/v1/imports}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/imports, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/imports/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAttachmentsController {/v1/attachments}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/attachments, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/v1}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/health, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/v1/version, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 11332  - [39m14/11/2026, 12:09:10 [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +215ms[39m
+[31m[Nest] 11332  - [39m14/11/2026, 12:09:10 [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use 0.0.0.0:3001[39m[38;5;3m +24ms[39m
+node:net:2008
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
+    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+    at listenInCluster (node:net:2065:12)
+    at node:net:2274:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3001
+}
+
+Node.js v24.16.0
+3001 now listening (direct run bound it)
+=== END ===

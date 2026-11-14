@@ -1,0 +1,47 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all apps
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        run: pnpm turbo build
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm --filter @sokoos/api exec prisma migrate deploy
+
+      # Add your deployment steps here (Vercel, Railway, Render, etc.)
+      - name: Deploy web app
+        run: echo "Deploy @sokoos/web to hosting"
+
+      - name: Deploy API
+        run: echo "Deploy @sokoos/api to server"
+
+      - name: Deploy worker
+        run: echo "Deploy @sokoos/worker to server"

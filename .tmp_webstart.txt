@@ -1,0 +1,6 @@
+--- stop :3000 --- 
+killing PID 48284 
+SUCCESS: The process with PID 48284 has been terminated.
+killing PID 48284 
+ERROR: The process "48284" not found.
+--- start :3000 --- 

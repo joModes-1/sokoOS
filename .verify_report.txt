@@ -1,0 +1,37 @@
+=== listeners ===
+  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       43724
+  TCP    [::]:3000              [::]:0                 LISTENING       43724
+=== API health ===
+ERR: Unable to connect to the remote server
+=== WEB /login ===
+ERR: The operation has timed out.
+=== api log (tail) ===
+$ nest start --watch
+[2J[3J[H[[90m12:06:52[0m] Starting compilation in watch mode...
+
+[[90m12:07:41[0m] Found 0 errors. Watching for file changes.
+
+(node:45000) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+=== web log (tail) ===
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+socket hang up
+
+Retrying 1/3...
+=== END ===

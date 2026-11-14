@@ -1,0 +1,66 @@
+# Render blueprint — SokoOS (api + web + Postgres). Redis is added when the worker ships.
+# Docs: https://render.com/docs/blueprint-spec
+databases:
+  - name: sokoos-postgres
+    databaseName: sokoos
+    user: sokoos
+    plan: basic-256mb
+
+services:
+  # ── API (NestJS, Fastify) ────────────────────────────────────────────────
+  - type: web
+    name: sokoos-api
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm --filter @sokoos/shared build
+      pnpm --filter @sokoos/api prisma:generate
+      pnpm --filter @sokoos/api build
+      pnpm --filter @sokoos/api prisma:migrate
+    startCommand: pnpm --filter @sokoos/api start
+    healthCheckPath: /v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sokoos-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false          # set to the web service's public URL after first deploy
+      - key: PILOT_MODE
+        sync: false          # true ONLY until a real SMS provider is wired (B-2)
+      - key: SMS_PROVIDER
+        value: mock
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+  # ── Web (Next.js) ─────────────────────────────────────────────────────────
+  - type: web
+    name: sokoos-web
+    runtime: node
+    plan: starter
+    rootDir: .
+    buildCommand: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm --filter @sokoos/shared build
+      pnpm --filter @sokoos/web build
+    startCommand: pnpm --filter @sokoos/web start
+    envVars:
+      # Inlined into the client bundle at build time — must be the API's PUBLIC origin.
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false

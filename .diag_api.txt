@@ -1,0 +1,30 @@
+=== listeners 3000/3001 ===
+  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       43724
+  TCP    [::]:3000              [::]:0                 LISTENING       43724
+=== node processes ===
+pid=17488 :: C:\nvm4w\nodejs\node.exe  --max-old-space-size=8119 C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules\openclaw\dist\index.js gateway --port 18789 --task-supervisor 
+pid=22412 :: C:\nvm4w\nodejs\node.exe C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules\openclaw\dist\process\supervisor\service-child-windows-job-anchor.js
+pid=30612 :: C:\nvm4w\nodejs\node.exe  --max-old-space-size=8119 C:\Users\joModes\AppData\Local\nvm\v24.16.0\node_modules\openclaw\dist\index.js gateway --port 18789
+pid=7340 :: "C:\nvm4w\nodejs\\node.exe"  "C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js" run dev
+pid=62760 :: "node"   "C:\Users\joModes\Downloads\carwash\server\node_modules\.bin\\..\ts-node-dev\lib\bin.js" -r tsconfig-paths/register --respawn --transpile-only src/server.ts
+pid=50116 :: "C:\nvm4w\nodejs\\node.exe"  "C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js" start -- --watch
+pid=38496 :: "node"   "C:\Users\joModes\Downloads\LMS\backend\node_modules\.bin\\..\@nestjs\cli\bin\nest.js" start --watch
+pid=30980 :: node  --enable-source-maps C:\Users\joModes\Downloads\LMS\backend\dist\main
+pid=45360 :: "C:\nvm4w\nodejs\\node.exe"  "C:\nvm4w\nodejs\node_modules\npm\bin\npm-cli.js" run dev
+pid=28028 :: "node"   "C:\Users\joModes\Downloads\carwash\server\node_modules\.bin\\..\ts-node-dev\lib\bin.js" -r tsconfig-paths/register --respawn --transpile-only src/server.ts
+pid=61548 :: "C:\nvm4w\nodejs\\node.exe"  "C:\nvm4w\nodejs\node_modules\npm\bin\npx-cli.js" expo start --web --port 8081
+pid=31892 :: "node"   "C:\Users\joModes\Downloads\carwash\mobile\node_modules\.bin\\..\expo\bin\cli" start --web --port 8081
+pid=23048 :: C:\nvm4w\nodejs\node.exe -r C:/Users/joModes/AppData/Local/Temp/ts-node-dev-hook-972158957785952.js -r tsconfig-paths/register C:\Users\joModes\Downloads\carwash\server\node_modules\ts-node-dev\lib\wrap.js src/server.ts
+pid=22220 :: node   "C:\Users\joModes\Downloads\sokoos-complete\sokoos\apps\web\node_modules\.bin\\..\next\dist\bin\next" dev
+pid=45000 :: node   "C:\Users\joModes\Downloads\sokoos-complete\sokoos\apps\api\node_modules\.bin\\..\@nestjs\cli\bin\nest.js" start --watch
+pid=43724 :: C:\nvm4w\nodejs\node.exe C:\Users\joModes\Downloads\sokoos-complete\sokoos\node_modules\.pnpm\next@15.5.29_@babel+core@7._7dbbaab682aef5fb0fd73982fe3cfaf9\node_modules\next\dist\server\lib\start-server.js
+pid=1244 :: node  --enable-source-maps C:\Users\joModes\Downloads\sokoos-complete\sokoos\apps\api\dist\main
+=== api log full ===
+$ nest start --watch
+[2J[3J[H[[90m12:06:52[0m] Starting compilation in watch mode...
+
+[[90m12:07:41[0m] Found 0 errors. Watching for file changes.
+
+(node:45000) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+=== END ===

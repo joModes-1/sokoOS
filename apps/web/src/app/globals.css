@@ -1,0 +1,496 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── SokoOS CSS tokens — Sunset Savanna ───────────────────────────────────── */
+:root {
+  /* Sidebar */
+  --sidebar-bg: #3A2216;
+  --sidebar-bg-hover: #4D2E1E;
+  --sidebar-active-bg: #C2410C;
+  --sidebar-text: #D4B8A5;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-text-muted: #8B6554;
+  --sidebar-width: 210px;
+  --sidebar-collapsed: 56px;
+  --soil-rgb: 58 34 22;
+  --soil-dark-rgb: 42 24 16;
+  --soil-light-rgb: 77 46 30;
+
+  /* Surfaces */
+  --bg: #FBF5EE;
+  --surface: #FFFFFF;
+  --surface-sunken: #F5EDE4;
+  --surface-hover: #FEF0E8;
+  --bg-rgb: 251 245 238;
+  --surface-sunken-rgb: 245 237 228;
+
+  /* Borders */
+  --border: #E8D5C8;
+  --border-strong: #D4B8A5;
+  --border-focus: #C2410C;
+  --border-rgb: 232 213 200;
+  --border-strong-rgb: 212 184 165;
+
+  /* Text */
+  --text: #1C0F05;
+  --text-muted: #6B4232;
+  --text-subtle: #9E7060;
+  --text-rgb: 28 15 5;
+  --text-muted-rgb: 107 66 50;
+  --text-subtle-rgb: 158 112 96;
+
+  /* Brand */
+  --brand: #C2410C;
+  --brand-hover: #A03008;
+  --brand-light: #FEF0E8;
+  --brand-subtle: #FDDCC8;
+  /* Channel mirrors of the four brand tokens above. Tailwind's `sunset-*` utilities are built on
+     these (see tailwind.config.ts) so a single preset in Settings → Appearance re-skins the whole
+     app — including alpha modifiers such as `bg-sunset/5`. */
+  --brand-rgb: 194 65 12;
+  --brand-hover-rgb: 160 48 8;
+  --brand-light-rgb: 254 240 232;
+  --brand-subtle-rgb: 253 220 200;
+
+  /* Semantic */
+  --success: #16A34A;
+  --success-bg: #DCFCE7;
+  --warning: #D97706;
+  --warning-bg: #FEF3C7;
+  --danger: #DC2626;
+  --danger-bg: #FEE2E2;
+  --info: #0EA5E9;
+  --info-bg: #E0F2FE;
+
+  /* Layout */
+  --header-height: 56px;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+/* ── Theme presets ────────────────────────────────────────────────────────────
+   The theme chosen in Settings → Appearance (see lib/theme.ts). Each preset re-skins the WHOLE
+   app — accent, sidebar, page background, sunken surfaces, borders and text tones together —
+   not just buttons and links. Only the semantic colours (success, warning, danger, info and the
+   ochre/ember accents) are deliberately left alone so status colour keeps its meaning.
+   `:root[data-brand='…']` out-specifies `:root`, so the default (no attribute, or
+   `data-brand="sunset"`) is the Sunset Savanna warm palette above.
+   The picker's swatch hex values live in lib/theme.ts and must match these. */
+:root[data-brand='ocean'] {
+  --brand: #1D4ED8; --brand-rgb: 29 78 216;
+  --brand-hover: #1E40AF; --brand-hover-rgb: 30 64 175;
+  --brand-light: #EFF6FF; --brand-light-rgb: 239 246 255;
+  --brand-subtle: #DBEAFE; --brand-subtle-rgb: 219 234 254;
+  --sidebar-active-bg: #1D4ED8; --border-focus: #1D4ED8;
+  --sidebar-bg: #14263D; --soil-rgb: 20 38 61;
+  --sidebar-bg-hover: #1D3550; --soil-dark-rgb: 16 30 48; --soil-light-rgb: 29 53 80;
+  --sidebar-text: #B9C9DC;
+  --bg: #F1F5FA; --bg-rgb: 241 245 250;
+  --surface-sunken: #E5EBF3; --surface-sunken-rgb: 229 235 243;
+  --surface-hover: #EAF1F9;
+  --border: #D5DFEB; --border-rgb: 213 223 235;
+  --border-strong: #B9C9DC; --border-strong-rgb: 185 201 220;
+  --text: #0C1B2C; --text-rgb: 12 27 44;
+  --text-muted: #42596F; --text-muted-rgb: 66 89 111;
+  --text-subtle: #6D8399; --text-subtle-rgb: 109 131 153;
+}
+:root[data-brand='teal'] {
+  --brand: #0F766E; --brand-rgb: 15 118 110;
+  --brand-hover: #115E59; --brand-hover-rgb: 17 94 89;
+  --brand-light: #F0FDFA; --brand-light-rgb: 240 253 250;
+  --brand-subtle: #CCFBF1; --brand-subtle-rgb: 204 251 241;
+  --sidebar-active-bg: #0F766E; --border-focus: #0F766E;
+  --sidebar-bg: #10322E; --soil-rgb: 16 50 46;
+  --sidebar-bg-hover: #17443F; --soil-dark-rgb: 12 38 35; --soil-light-rgb: 23 68 63;
+  --sidebar-text: #B2D2CC;
+  --bg: #EFF6F4; --bg-rgb: 239 246 244;
+  --surface-sunken: #E1EEEA; --surface-sunken-rgb: 225 238 234;
+  --surface-hover: #E7F2EF;
+  --border: #CEE2DD; --border-rgb: 206 226 221;
+  --border-strong: #B2D2CC; --border-strong-rgb: 178 210 204;
+  --text: #06211D; --text-rgb: 6 33 29;
+  --text-muted: #2F5C55; --text-muted-rgb: 47 92 85;
+  --text-subtle: #5C847C; --text-subtle-rgb: 92 132 124;
+}
+:root[data-brand='forest'] {
+  --brand: #15803D; --brand-rgb: 21 128 61;
+  --brand-hover: #166534; --brand-hover-rgb: 22 101 52;
+  --brand-light: #F0FDF4; --brand-light-rgb: 240 253 244;
+  --brand-subtle: #DCFCE7; --brand-subtle-rgb: 220 252 231;
+  --sidebar-active-bg: #15803D; --border-focus: #15803D;
+  --sidebar-bg: #122B19; --soil-rgb: 18 43 25;
+  --sidebar-bg-hover: #1B3D24; --soil-dark-rgb: 14 33 19; --soil-light-rgb: 27 61 36;
+  --sidebar-text: #B5D2BF;
+  --bg: #F1F7F1; --bg-rgb: 241 247 241;
+  --surface-sunken: #E3F0E3; --surface-sunken-rgb: 227 240 227;
+  --surface-hover: #E9F3EA;
+  --border: #CFE3D1; --border-rgb: 207 227 209;
+  --border-strong: #B5D2BF; --border-strong-rgb: 181 210 191;
+  --text: #081F0E; --text-rgb: 8 31 14;
+  --text-muted: #35603F; --text-muted-rgb: 53 96 63;
+  --text-subtle: #62876A; --text-subtle-rgb: 98 135 106;
+}
+:root[data-brand='plum'] {
+  --brand: #7E22CE; --brand-rgb: 126 34 206;
+  --brand-hover: #6B21A8; --brand-hover-rgb: 107 33 168;
+  --brand-light: #FAF5FF; --brand-light-rgb: 250 245 255;
+  --brand-subtle: #F3E8FF; --brand-subtle-rgb: 243 232 255;
+  --sidebar-active-bg: #7E22CE; --border-focus: #7E22CE;
+  --sidebar-bg: #241232; --soil-rgb: 36 18 50;
+  --sidebar-bg-hover: #321B45; --soil-dark-rgb: 28 14 40; --soil-light-rgb: 50 27 69;
+  --sidebar-text: #CDB2DF;
+  --bg: #F7F3FA; --bg-rgb: 247 243 250;
+  --surface-sunken: #EDE5F3; --surface-sunken-rgb: 237 229 243;
+  --surface-hover: #F2EBF7;
+  --border: #DFD3EA; --border-rgb: 223 211 234;
+  --border-strong: #CDB2DF; --border-strong-rgb: 205 178 223;
+  --text: #190A23; --text-rgb: 25 10 35;
+  --text-muted: #533969; --text-muted-rgb: 83 57 105;
+  --text-subtle: #7C6490; --text-subtle-rgb: 124 100 144;
+}
+:root[data-brand='rose'] {
+  --brand: #BE123C; --brand-rgb: 190 18 60;
+  --brand-hover: #9F1239; --brand-hover-rgb: 159 18 57;
+  --brand-light: #FFF1F2; --brand-light-rgb: 255 241 242;
+  --brand-subtle: #FFE4E6; --brand-subtle-rgb: 255 228 230;
+  --sidebar-active-bg: #BE123C; --border-focus: #BE123C;
+  --sidebar-bg: #2E0F18; --soil-rgb: 46 15 24;
+  --sidebar-bg-hover: #40161F; --soil-dark-rgb: 36 12 19; --soil-light-rgb: 64 22 31;
+  --sidebar-text: #E0B6C1;
+  --bg: #FBF2F4; --bg-rgb: 251 242 244;
+  --surface-sunken: #F4E4E8; --surface-sunken-rgb: 244 228 232;
+  --surface-hover: #F8ECEF;
+  --border: #ECD2D9; --border-rgb: 236 210 217;
+  --border-strong: #E0B6C1; --border-strong-rgb: 224 182 193;
+  --text: #220910; --text-rgb: 34 9 16;
+  --text-muted: #693245; --text-muted-rgb: 105 50 69;
+  --text-subtle: #935F6E; --text-subtle-rgb: 147 95 110;
+}
+:root[data-brand='amber'] {
+  --brand: #B45309; --brand-rgb: 180 83 9;
+  --brand-hover: #92400E; --brand-hover-rgb: 146 64 14;
+  --brand-light: #FFFBEB; --brand-light-rgb: 255 251 235;
+  --brand-subtle: #FDE68A; --brand-subtle-rgb: 253 230 138;
+  --sidebar-active-bg: #B45309; --border-focus: #B45309;
+  --sidebar-bg: #2E1B08; --soil-rgb: 46 27 8;
+  --sidebar-bg-hover: #3F270D; --soil-dark-rgb: 36 21 6; --soil-light-rgb: 63 39 13;
+  --sidebar-text: #E1CBA6;
+  --bg: #FAF4EA; --bg-rgb: 250 244 234;
+  --surface-sunken: #F1E8D6; --surface-sunken-rgb: 241 232 214;
+  --surface-hover: #F7EFDF;
+  --border: #E7DCC1; --border-rgb: 231 220 193;
+  --border-strong: #DFCBA0; --border-strong-rgb: 223 203 160;
+  --text: #201104; --text-rgb: 32 17 4;
+  --text-muted: #694C29; --text-muted-rgb: 105 76 41;
+  --text-subtle: #94784E; --text-subtle-rgb: 148 120 78;
+}
+:root[data-brand='graphite'] {
+  --brand: #334155; --brand-rgb: 51 65 85;
+  --brand-hover: #1E293B; --brand-hover-rgb: 30 41 59;
+  --brand-light: #F8FAFC; --brand-light-rgb: 248 250 252;
+  --brand-subtle: #E2E8F0; --brand-subtle-rgb: 226 232 240;
+  --sidebar-active-bg: #334155; --border-focus: #334155;
+  --sidebar-bg: #1B2635; --soil-rgb: 27 38 53;
+  --sidebar-bg-hover: #263347; --soil-dark-rgb: 21 30 42; --soil-light-rgb: 38 51 71;
+  --sidebar-text: #B4C1D1;
+  --bg: #F3F5F8; --bg-rgb: 243 245 248;
+  --surface-sunken: #E7EBF0; --surface-sunken-rgb: 231 235 240;
+  --surface-hover: #EBF0F6;
+  --border: #D5DDE5; --border-rgb: 213 221 229;
+  --border-strong: #B4C1D1; --border-strong-rgb: 180 193 209;
+  --text: #0E1A26; --text-rgb: 14 26 38;
+  --text-muted: #40536A; --text-muted-rgb: 64 83 106;
+  --text-subtle: #6A7D93; --text-subtle-rgb: 106 125 147;
+}
+
+/* ── Base styles ──────────────────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  /* 16px keeps Tailwind's rem-based scale at its intended size (text-sm = 14px, text-base = 16px)
+     and stops iOS Safari zooming the page on input focus. */
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.app-sidebar::-webkit-scrollbar { display: none; }
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  height: var(--header-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ── Sidebar nav items ───────────────────────────────────────────────────── */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  margin: 1px 8px;
+}
+.nav-item:hover {
+  background: var(--sidebar-bg-hover);
+  color: var(--sidebar-text-active);
+}
+.nav-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text-active);
+  font-weight: 600;
+}
+.nav-item .nav-icon {
+  width: 18px;
+  flex-shrink: 0;
+  opacity: .85;
+}
+.nav-item.active .nav-icon { opacity: 1; }
+
+/* ── Typography helpers ─────────────────────────────────────────────────── */
+.page-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(28,15,5,0.06);
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  border: 1px solid transparent;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+.btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-strong); background: var(--surface-sunken); }
+.btn-sm { padding: 5px 12px; font-size: 12.5px; }
+.btn-lg { padding: 11px 24px; font-size: 15px; }
+.btn-icon { width: 32px; height: 32px; padding: 0; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-success  { background: var(--success-bg);  color: var(--success); }
+.badge-warning  { background: var(--warning-bg);  color: var(--warning); }
+.badge-danger   { background: var(--danger-bg);   color: var(--danger); }
+.badge-info     { background: var(--info-bg);     color: var(--info); }
+.badge-brand    { background: var(--brand-subtle); color: var(--brand); }
+.badge-neutral  { background: var(--surface-sunken); color: var(--text-muted); }
+.badge-ochre    { background: #FEF3DC;            color: #A15C07; }
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.data-table th {
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 9px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface-hover); }
+
+/* ── Forms ───────────────────────────────────────────────────────────────── */
+/* These two rules live in `@layer components` on purpose. `@tailwind utilities` is expanded at the
+   top of this file, so any plain rule written down here outranks a utility of equal specificity —
+   which silently killed `pl-9`/`pr-12` addon insets and the `border-danger` error border on every
+   Input in the app. Inside a layer, utilities win again, so the classes on <Input> mean what they
+   say. Keep form-field rules in this layer; put one-off rules in the unlayered sections below. */
+@layer components {
+  .form-input, .form-select {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--surface);
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgb(var(--brand-rgb) / 0.12);
+  }
+  /* An error field keeps its ring but must not be re-coloured by the focus rule above.
+     `--danger` (#DC2626) has no `-rgb` mirror because it is deliberately fixed across themes. */
+  .form-input[aria-invalid='true']:focus, .form-select[aria-invalid='true']:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgb(220 38 38 / 0.12);
+  }
+}
+.form-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.form-error {
+  font-size: 12.5px;
+  color: var(--danger);
+  margin-top: 4px;
+}
+
+/* ── Progress / Status bar ───────────────────────────────────────────────── */
+.progress-bar {
+  height: 6px;
+  background: var(--surface-sunken);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--brand);
+  transition: width .3s ease;
+}
+
+/* ── Utility ─────────────────────────────────────────────────────────────── */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.text-brand { color: var(--brand); }
+.text-muted { color: var(--text-muted); }
+.text-subtle { color: var(--text-subtle); }
+.bg-surface { background: var(--surface); }
+.bg-sand { background: var(--bg); }
+.border-default { border: 1px solid var(--border); }
+.divider { height: 1px; background: var(--border); }
+
+/* Scroll shadow for capped, scrollable lists (e.g. the business-type picker). The "cover" stops
+   are `local` so they scroll with the content while the soft shadow stops stay pinned to the box —
+   the shadow therefore appears only on a side that actually has content hidden, with no JS and no
+   false cue when the list fits. Assumes a white surface. */
+.scroll-shade {
+  background:
+    linear-gradient(#fff 30%, rgb(255 255 255 / 0)) center top,
+    linear-gradient(rgb(255 255 255 / 0), #fff 70%) center bottom,
+    radial-gradient(farthest-side at 50% 0, rgb(60 34 22 / 0.14), rgb(60 34 22 / 0)) center top,
+    radial-gradient(farthest-side at 50% 100%, rgb(60 34 22 / 0.14), rgb(60 34 22 / 0)) center bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 26px, 100% 26px, 100% 9px, 100% 9px;
+  background-attachment: local, local, scroll, scroll;
+}
+
+@media (max-width: 768px) {
+  .app-sidebar { display: none; }
+  .app-content { padding: 16px; }
+}
