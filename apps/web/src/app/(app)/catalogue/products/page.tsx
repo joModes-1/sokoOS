@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProducts, useCategories, useBrands } from '@/hooks/use-queries';
 import { formatMoney } from '@/lib/format';
 import { PageHeader, SearchInput, Badge, Spinner, EmptyState, Button, Modal, Input, Select, Textarea } from '@/components/ui';
@@ -9,6 +9,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
 import { useBusinessContext } from '@/hooks/use-business';
 import { useForm } from 'react-hook-form';
+
+// "Dettol Soap 100g" + "Default" → "DETT-SOAP-100G-482". Suffix keeps codes unique across similar names.
+function makeSku(name: string, variant: string, suffix: string) {
+  const words = `${name} ${variant === 'Default' ? '' : variant}`
+    .toUpperCase()
+    .split(/[^A-Z0-9]+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map(w => w.slice(0, 4));
+  return words.length ? `${words.join('-')}-${suffix}` : '';
+}
+const newSkuSuffix = () => String(Math.floor(100 + Math.random() * 900));
 
 interface ProductForm {
   sku: string;
@@ -36,9 +48,24 @@ export default function ProductsPage() {
   const { data: categories } = useCategories();
   const { data: brands } = useBrands();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductForm>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<ProductForm>({
     defaultValues: { sku: '', name: '', description: '', categoryId: '', brandId: '', taxBps: '1800', variantName: 'Default', barcode: '', unitCostMinor: '', unitPriceMinor: '', reorderQty: '10' }
   });
+
+  // Auto-fill SKU from the name until the user edits the SKU field themselves.
+  const [skuEdited, setSkuEdited] = useState(false);
+  const [skuSuffix, setSkuSuffix] = useState(newSkuSuffix);
+  const watchedName = watch('name');
+  const watchedVariant = watch('variantName');
+  useEffect(() => {
+    if (!skuEdited) setValue('sku', makeSku(watchedName, watchedVariant, skuSuffix), { shouldValidate: !!watchedName });
+  }, [watchedName, watchedVariant, skuEdited, skuSuffix, setValue]);
+
+  function resetForm() {
+    reset();
+    setSkuEdited(false);
+    setSkuSuffix(newSkuSuffix());
+  }
 
   async function onSave(data: ProductForm) {
     setSaving(true);
@@ -60,7 +87,7 @@ export default function ProductsPage() {
       });
       qc.invalidateQueries({ queryKey: queryKeys.products(businessId) });
       setShowAdd(false);
-      reset();
+      resetForm();
     } catch {}
     setSaving(false);
   }
@@ -141,7 +168,7 @@ export default function ProductsPage() {
 
       <Modal
         open={showAdd}
-        onClose={() => { setShowAdd(false); reset(); }}
+        onClose={() => { setShowAdd(false); resetForm(); }}
         title="Add new product"
         footer={
           <>
@@ -152,7 +179,16 @@ export default function ProductsPage() {
       >
         <form className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <Input label="SKU" placeholder="SKU-001" error={errors.sku?.message} {...register('sku', { required: 'Required' })} />
+            <Input
+              label="SKU (auto, editable)"
+              placeholder="Fills in from the name"
+              error={errors.sku?.message}
+              {...register('sku', {
+                required: 'Required',
+                // Clearing the box hands control back to auto-generation.
+                onChange: (e) => setSkuEdited(e.target.value.trim() !== ''),
+              })}
+            />
             <Select label="Tax rate" options={[{ value: '0', label: 'Tax exempt (0%)' }, { value: '1800', label: 'Standard VAT (18%)' }]} {...register('taxBps')} />
           </div>
           <Input label="Product name" placeholder="Dettol Soap 100g" error={errors.name?.message} {...register('name', { required: 'Required' })} />
