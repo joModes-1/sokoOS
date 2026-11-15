@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { BusinessesModule } from '../businesses/businesses.module.js';
+import { AuditModule } from '../audit/audit.module.js';
 import type { Env } from '../../config/env.schema.js';
 
 @Module({
@@ -20,6 +21,7 @@ import type { Env } from '../../config/env.schema.js';
       }),
     }),
     BusinessesModule,
+    AuditModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

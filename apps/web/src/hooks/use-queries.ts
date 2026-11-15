@@ -676,7 +676,7 @@ export interface Notification {
 }
 
 // ── Audit Logs ────────────────────────────────────────────────────────────────
-export function useAuditLogs(filters?: { action?: string; actorId?: string; page?: number }) {
+export function useAuditLogs(filters?: { action?: string; actorId?: string; dateFrom?: string; dateTo?: string; page?: number }) {
   const { businessId } = useBusinessContext();
   return useQuery({
     queryKey: queryKeys.auditLogs(businessId, filters),
@@ -684,8 +684,36 @@ export function useAuditLogs(filters?: { action?: string; actorId?: string; page
       const p = new URLSearchParams();
       if (filters?.action) p.set('action', filters.action);
       if (filters?.actorId) p.set('actorUserId', filters.actorId);
+      if (filters?.dateFrom) p.set('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) p.set('dateTo', filters.dateTo);
       if (filters?.page) p.set('page', String(filters.page));
       return api.get<ApiPage<ApiAuditRow>>(`/audit-logs?${p}`).then(adaptAuditPage);
+    },
+    enabled: !!businessId,
+  });
+}
+
+// Admin activity summary — GET /reports/activity (fails for roles without reports.view).
+export interface ActivityReport {
+  dateFrom: string;
+  dateTo: string;
+  asOf: string;
+  totals: { events: number; activeUsers: number; logins: number; failedLogins: number };
+  eventsByDay: { date: string; count: number }[];
+  topActors: { name: string; email: string; role: string; count: number }[];
+  actions: { action: string; count: number }[];
+  recentFailedLogins: { actorName: string; ipAddress: string | null; at: string }[];
+}
+
+export function useActivityReport(filters?: { dateFrom?: string; dateTo?: string }) {
+  const { businessId } = useBusinessContext();
+  return useQuery({
+    queryKey: queryKeys.activityReport(businessId, filters),
+    queryFn: () => {
+      const p = new URLSearchParams();
+      if (filters?.dateFrom) p.set('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) p.set('dateTo', filters.dateTo);
+      return api.get<ActivityReport>(`/reports/activity?${p}`);
     },
     enabled: !!businessId,
   });
@@ -700,9 +728,15 @@ interface ApiAuditRow {
   id: string;
   action: string;
   actorUserId?: string | null;
+  actorName?: string | null;
+  actorEmail?: string | null;
+  actorRoleCode?: string | null;
   targetType: string;
   targetId: string;
   createdAt: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
 }
 
@@ -711,10 +745,15 @@ function adaptAuditPage(raw: ApiPage<ApiAuditRow>): AuditPage {
     items: raw.data.map((row) => ({
       id: row.id,
       action: row.action,
-      actorName: row.actorUserId ?? '',
+      actorName: row.actorName || row.actorUserId || 'System',
+      actorEmail: row.actorEmail ?? undefined,
+      actorRole: row.actorRoleCode ?? undefined,
       targetType: row.targetType,
       targetId: row.targetId,
       createdAt: row.createdAt,
+      ipAddress: row.ipAddress ?? undefined,
+      userAgent: row.userAgent ?? undefined,
+      ...(row.before && { before: row.before }),
       ...(row.after && { metadata: row.after }),
     })),
     total: raw.total,
@@ -725,9 +764,14 @@ export interface AuditLog {
   id: string;
   action: string;
   actorName: string;
+  actorEmail?: string;
+  actorRole?: string;
   targetType: string;
   targetId: string;
   createdAt: string;
+  ipAddress?: string;
+  userAgent?: string;
+  before?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 }
 

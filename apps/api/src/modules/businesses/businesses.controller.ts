@@ -28,6 +28,6 @@ export class BusinessesController {
 
   @Patch(':businessId/settings')
   async updateSettings(@Body() body: unknown, @CurrentUser() user: AuthUser) {
-    return this.businesses.updateSettings(user.businessId!, body as never);
+    return this.businesses.updateSettings(user.businessId!, user.id, body as never);
   }
 }

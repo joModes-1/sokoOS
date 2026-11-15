@@ -1,5 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import type { RegisterBusinessInput } from '@sokoos/shared';
 import { ROLE_DEFAULTS } from '@sokoos/shared';
 
@@ -30,7 +31,10 @@ const SYSTEM_PERMISSIONS = [
 
 @Injectable()
 export class BusinessesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private audit: AuditService,
+  ) {}
 
   async registerBusiness(userId: string, input: RegisterBusinessInput) {
     // Generate slug if not provided
@@ -140,16 +144,40 @@ export class BusinessesService {
   }
 
   async updateProfile(businessId: string, userId: string, data: Partial<{ legalName: string; tin: string; contactPhone: string; address: object }>) {
-    return this.prisma.business.update({
+    const before = await this.prisma.business.findUnique({
+      where: { id: businessId },
+      select: { legalName: true, tin: true, contactPhone: true, address: true },
+    });
+    const updated = await this.prisma.business.update({
       where: { id: businessId },
       data,
     });
+    await this.audit.logDirect({
+      businessId, actorUserId: userId,
+      action: 'business.profile.update',
+      targetType: 'Business', targetId: businessId,
+      before: before as unknown as Record<string, unknown>,
+      after: data as Record<string, unknown>,
+    });
+    return updated;
   }
 
-  async updateSettings(businessId: string, data: Partial<{ defaultTaxRateBp: number; allowNegativeStock: boolean; receiptFooterText: string; timezone: string }>) {
-    return this.prisma.businessSettings.update({
+  async updateSettings(businessId: string, userId: string, data: Partial<{ defaultTaxRateBp: number; allowNegativeStock: boolean; receiptFooterText: string; timezone: string }>) {
+    const before = await this.prisma.businessSettings.findUnique({
+      where: { businessId },
+      select: { defaultTaxRateBp: true, allowNegativeStock: true, receiptFooterText: true, timezone: true },
+    });
+    const updated = await this.prisma.businessSettings.update({
       where: { businessId },
       data,
     });
+    await this.audit.logDirect({
+      businessId, actorUserId: userId,
+      action: 'business.settings.update',
+      targetType: 'BusinessSettings', targetId: businessId,
+      before: before as unknown as Record<string, unknown>,
+      after: data as Record<string, unknown>,
+    });
+    return updated;
   }
 }

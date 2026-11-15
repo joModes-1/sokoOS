@@ -285,4 +285,86 @@ export class ReportsService {
       openOrderCount: openCount,
     };
   }
+
+  /**
+   * Admin activity report (screen `/audit-logs` summary tiles and future admin pages):
+   * who has been doing what, and how many security events occurred, in a date range.
+   *
+   * Note on coverage: only failed logins for *known* users are recorded (unknown emails
+   * cannot be anchored to a tenant or actor), so `failedLogins` undercounts enumeration
+   * attempts against the login endpoint.
+   */
+  async getActivityReport(businessId: string, filters: { dateFrom?: string; dateTo?: string }) {
+    const TZ = 'Africa/Kampala';
+    const num = (v: unknown) => Number(v ?? 0);
+
+    const asDate = (value: string | undefined, fallbackDaysAgo: number) => {
+      const parsed = value ? new Date(value) : new Date(Number.NaN);
+      const at = Number.isNaN(parsed.getTime()) ? new Date(Date.now() - fallbackDaysAgo * 86_400_000) : parsed;
+      return at.toISOString().slice(0, 10);
+    };
+    const dateFrom = asDate(filters.dateFrom, 30);
+    const dateTo = asDate(filters.dateTo, 0);
+
+    const inRange = Prisma.sql`l.business_id = ${businessId}::uuid
+      AND (l.created_at AT TIME ZONE ${TZ})::date BETWEEN ${dateFrom}::date AND ${dateTo}::date`;
+
+    const [totals, byDay, topActors, actions, failed] = await Promise.all([
+      this.prisma.$queryRaw<{ events: bigint; actors: bigint; logins: bigint; failed_logins: bigint }[]>(Prisma.sql`
+        SELECT COUNT(*) AS events,
+               COUNT(DISTINCT l.actor_user_id) AS actors,
+               COUNT(*) FILTER (WHERE l.action = 'auth.login.success') AS logins,
+               COUNT(*) FILTER (WHERE l.action = 'auth.login.failed') AS failed_logins
+        FROM audit_logs l
+        WHERE ${inRange}`),
+      this.prisma.$queryRaw<{ d: string; count: bigint }[]>(Prisma.sql`
+        SELECT to_char((l.created_at AT TIME ZONE ${TZ})::date, 'YYYY-MM-DD') AS d, COUNT(*) AS count
+        FROM audit_logs l
+        WHERE ${inRange}
+        GROUP BY 1 ORDER BY 1`),
+      this.prisma.$queryRaw<{ name: string; email: string; role: string; count: bigint }[]>(Prisma.sql`
+        SELECT u.full_name AS name, u.email AS email, MAX(l.actor_role_code) AS role, COUNT(*) AS count
+        FROM audit_logs l
+        JOIN users u ON u.id = l.actor_user_id
+        WHERE ${inRange}
+        GROUP BY u.full_name, u.email
+        ORDER BY count DESC, u.full_name
+        LIMIT 8`),
+      this.prisma.$queryRaw<{ action: string; count: bigint }[]>(Prisma.sql`
+        SELECT l.action, COUNT(*) AS count
+        FROM audit_logs l
+        WHERE ${inRange}
+        GROUP BY l.action
+        ORDER BY count DESC
+        LIMIT 12`),
+      this.prisma.$queryRaw<{ actor_name: string; ip_address: string | null; created_at: Date }[]>(Prisma.sql`
+        SELECT u.full_name AS actor_name, l.ip_address, l.created_at
+        FROM audit_logs l
+        JOIN users u ON u.id = l.actor_user_id
+        WHERE ${inRange} AND l.action = 'auth.login.failed'
+        ORDER BY l.created_at DESC
+        LIMIT 8`),
+    ]);
+
+    const t = totals[0] ?? { events: 0n, actors: 0n, logins: 0n, failed_logins: 0n };
+    return {
+      dateFrom,
+      dateTo,
+      asOf: new Date().toISOString(),
+      totals: {
+        events: num(t.events),
+        activeUsers: num(t.actors),
+        logins: num(t.logins),
+        failedLogins: num(t.failed_logins),
+      },
+      eventsByDay: byDay.map(r => ({ date: r.d, count: num(r.count) })),
+      topActors: topActors.map(a => ({ name: a.name, email: a.email, role: a.role, count: num(a.count) })),
+      actions: actions.map(a => ({ action: a.action, count: num(a.count) })),
+      recentFailedLogins: failed.map(f => ({
+        actorName: f.actor_name,
+        ipAddress: f.ip_address,
+        at: f.created_at.toISOString(),
+      })),
+    };
+  }
 }

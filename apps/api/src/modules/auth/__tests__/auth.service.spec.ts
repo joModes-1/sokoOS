@@ -16,8 +16,9 @@ describe('AuthService login status', () => {
     };
     const jwt = { sign: jest.fn() };
     const config = { get: jest.fn() };
+    const audit = { logAuthEvent: jest.fn().mockResolvedValue(undefined) };
     return {
-      service: new AuthService(prisma as never, jwt as never, config as never),
+      service: new AuthService(prisma as never, jwt as never, config as never, audit as never),
       prisma,
     };
   }

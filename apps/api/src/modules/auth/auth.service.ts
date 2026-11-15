@@ -9,6 +9,7 @@ import * as crypto from 'crypto';
 import * as OTPAuth from 'otpauth';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../audit/audit.service.js';
 import type { Env } from '../../config/env.schema.js';
 import type { RegisterInput, LoginInput } from '@sokoos/shared';
 
@@ -36,6 +37,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService<Env>,
+    private audit: AuditService,
   ) {}
 
   // ── Register ─────────────────────────────────────────────────────────────
@@ -128,6 +130,9 @@ export class AuthService {
         },
       });
       const remaining = MAX_LOGIN_ATTEMPTS - attempts;
+      await this.audit.logAuthEvent(user.id, 'auth.login.failed',
+        { attempts, ...(shouldLock && { locked: true, lockMinutes: LOCKOUT_MINUTES }) },
+        { ipAddress, userAgent });
       throw new UnauthorizedException({
         code: 'UNAUTHENTICATED',
         message: remaining > 0
@@ -157,6 +162,7 @@ export class AuthService {
     }
 
     const session = await this.createSession(user.id, ipAddress, userAgent, input.rememberMe);
+    await this.audit.logAuthEvent(user.id, 'auth.login.success', {}, { ipAddress, userAgent });
     return { ...session, ...(await this.sessionContext(user.id)) };
   }
 
@@ -321,6 +327,7 @@ export class AuthService {
             data: { revokedAt: new Date() },
           }),
         ]);
+        await this.audit.logAuthEvent(authToken.userId, 'auth.password.reset', {});
         return { message: 'Password updated. Please sign in again.' };
       }
     }
@@ -354,6 +361,7 @@ export class AuthService {
       where: { id: sessionId, userId },
       data: { revokedAt: new Date() },
     });
+    await this.audit.logAuthEvent(userId, 'auth.session.revoked', { sessionId });
     return { revoked: true };
   }
 
@@ -406,6 +414,7 @@ export class AuthService {
       }),
     ]);
 
+    await this.audit.logAuthEvent(userId, 'auth.mfa.enabled', { factorId });
     return { confirmed: true, recoveryCodes };
   }
 

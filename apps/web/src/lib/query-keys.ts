@@ -69,4 +69,5 @@ export const queryKeys = {
 
   // Audit
   auditLogs: (businessId: string, filters?: object) => ['audit-logs', businessId, filters] as const,
+  activityReport: (businessId: string, filters?: object) => ['activity-report', businessId, filters] as const,
 } as const;

@@ -25,4 +25,9 @@ export class ReportsController {
   @Get('stock') @RequirePermissions('reports.view') async stock(@CurrentUser() u: AuthUser, @Query('branchId') b?: string) { return this.reports.getStockReport(u.businessId!, b); }
   @Get('low-stock') @RequirePermissions('reports.view') async lowStock(@CurrentUser() u: AuthUser, @Query('branchId') b?: string) { return this.reports.getLowStockReport(u.businessId!, b); }
   @Get('purchasing') @RequirePermissions('reports.view') async purchasing(@CurrentUser() u: AuthUser, @Query() q: Record<string, string>) { return this.reports.getPurchasingReport(u.businessId!, { supplierId: q['supplierId'], dateFrom: q['dateFrom'], dateTo: q['dateTo'] }); }
+
+  @Get('activity') @RequirePermissions('reports.view')
+  async activity(@CurrentUser() u: AuthUser, @Query() q: Record<string, string>) {
+    return this.reports.getActivityReport(u.businessId!, { dateFrom: q['dateFrom'], dateTo: q['dateTo'] });
+  }
 }

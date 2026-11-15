@@ -104,3 +104,58 @@ describe('ReportsService.getSalesReport', () => {
     expect(queryRaw.mock.calls[0]![0].values).toContain(report.dateTo);
   });
 });
+
+describe('ReportsService.getActivityReport', () => {
+  let queryRaw: jest.Mock;
+  let service: ReportsService;
+
+  const rows = {
+    totals: [{ events: 120n, actors: 5n, logins: 40n, failed_logins: 3n }],
+    byDay: [{ d: '2026-11-10', count: 12n }],
+    topActors: [{ name: 'Ada Admin', email: 'ada@example.com', role: 'BUSINESS_ADMIN', count: 60n }],
+    actions: [{ action: 'sales.sale.create', count: 30n }],
+    failed: [{ actor_name: 'Ada Admin', ip_address: '41.0.0.1', created_at: new Date('2026-11-10T09:00:00Z') }],
+  };
+
+  beforeEach(() => {
+    queryRaw = jest.fn(async (query: { sql: string }) => {
+      if (query.sql.includes('AS events')) return rows.totals;
+      if (query.sql.includes('to_char')) return rows.byDay;
+      if (query.sql.includes('u.full_name AS name')) return rows.topActors;
+      if (query.sql.includes('GROUP BY l.action')) return rows.actions;
+      return rows.failed;
+    });
+    service = new ReportsService({ $queryRaw: queryRaw } as never);
+  });
+
+  it('summarises admin activity with real numbers and named actors', async () => {
+    const report = await service.getActivityReport('biz-1', { dateFrom: '2026-11-01', dateTo: '2026-11-10' });
+
+    expect(report).toMatchObject({
+      totals: { events: 120, activeUsers: 5, logins: 40, failedLogins: 3 },
+      eventsByDay: [{ date: '2026-11-10', count: 12 }],
+      topActors: [{ name: 'Ada Admin', email: 'ada@example.com', role: 'BUSINESS_ADMIN', count: 60 }],
+      actions: [{ action: 'sales.sale.create', count: 30 }],
+      recentFailedLogins: [{ actorName: 'Ada Admin', ipAddress: '41.0.0.1' }],
+    });
+  });
+
+  it('scopes every aggregate to the business and parameterises the range', async () => {
+    await service.getActivityReport('biz-7', { dateFrom: '2026-11-01', dateTo: '2026-11-10' });
+
+    for (const [query] of queryRaw.mock.calls as [{ sql: string; values: unknown[] }][]) {
+      expect(query.values).toContain('biz-7');
+      expect(query.values).toContain('2026-11-01');
+      expect(query.values).toContain('2026-11-10');
+      expect(query.values).toContain('Africa/Kampala');
+    }
+  });
+
+  it('falls back to the last 30 days when no range is given', async () => {
+    const report = await service.getActivityReport('biz-1', {});
+
+    expect(report.dateFrom).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(report.dateTo).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(report.dateFrom <= report.dateTo).toBe(true);
+  });
+});
