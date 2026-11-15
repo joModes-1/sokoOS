@@ -47,14 +47,6 @@ const envSchema = z.object({
 
   SMS_PROVIDER: z.enum(['mock', 'africas_talking', 'twilio']).default('mock'),
   WHATSAPP_PROVIDER: z.enum(['mock', 'meta']).default('mock'),
-
-  // Pilot deploys: when true AND NODE_ENV=production, verification/reset codes are returned in the
-  // API response so a business can onboard without an SMS provider. Opt-in and temporary —
-  // integrate a real SMS provider and turn this off. See docs/PUBLISH-READINESS.md B-2.
-  PILOT_MODE: z
-    .enum(['true', 'false'])
-    .default('false')
-    .transform((value) => value === 'true'),
 })
   .superRefine((env, ctx) => {
     // FRONTEND_URL accepts one origin or a comma-separated allow-list (matches main.ts CORS).

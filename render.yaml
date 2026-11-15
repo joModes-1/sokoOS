@@ -34,8 +34,6 @@ services:
       # Comma-separated allow-list (matches main.ts CORS).
       - key: FRONTEND_URL
         value: "https://soko.villacode.site,http://localhost:3000"
-      - key: PILOT_MODE
-        value: "true"        # true ONLY until a real SMS provider is wired (B-2)
       - key: SMS_PROVIDER
         value: mock
       - key: WHATSAPP_PROVIDER
@@ -52,7 +50,7 @@ services:
       - key: SMTP_PASS
         sync: false          # Resend API key — set in the Render dashboard, never commit it
       - key: EMAIL_FROM
-        value: "SokoOS <onboarding@resend.dev>"
+        value: "SokoOS <no-reply@soko.villacode.site>"
       - key: SUPPORT_EMAIL
         value: jomodes765@gmail.com
 

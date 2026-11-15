@@ -75,7 +75,6 @@ export class AuthService {
     return {
       userId: user.id,
       message: 'Verification code sent to your email',
-      ...(this.exposeDevCodes && { devCode: code }),
     };
   }
 
@@ -95,7 +94,6 @@ export class AuthService {
     await this.mailer.sendVerificationCode(user.email, code, 'account verification');
     return {
       message: 'If the account needs verification, a new code has been sent.',
-      ...(this.exposeDevCodes && { devCode: code }),
     };
   }
 
@@ -289,29 +287,17 @@ export class AuthService {
     throw new BadRequestException({ code: 'TOKEN_INVALID', message: 'Invalid or expired verification code' });
   }
 
-  // ── Dev/pilot code delivery ───────────────────────────────────────────────
-  // Outside production the code rides along in the response. In production it is withheld unless
-  // PILOT_MODE=true — an explicit opt-in for pilot deploys that have no SMS provider yet
-  // (docs/PUBLISH-READINESS.md B-2). Replace with a real SMS integration, then turn off.
-  private get exposeDevCodes(): boolean {
-    if (process.env.NODE_ENV !== 'production') return true;
-    return this.config.get('PILOT_MODE', { infer: true }) === true;
-  }
-
   // ── Forgot password ───────────────────────────────────────────────────────
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findFirst({ where: { email: email.toLowerCase() } });
     // Always return success to prevent user enumeration
-    let devCode: string | undefined;
     if (user) {
       const code = await this.createVerificationToken(user.id, 'PASSWORD_RESET', PASSWORD_RESET_TTL_MINUTES);
       this.logger.log(`Password reset requested for ${user.id}`);
       await this.mailer.sendVerificationCode(user.email, code, 'password reset');
-      devCode = this.exposeDevCodes ? code : undefined;
     }
     return {
       message: 'If the account exists, a reset code has been sent to the registered email address.',
-      ...(devCode && { devCode }),
     };
   }
 

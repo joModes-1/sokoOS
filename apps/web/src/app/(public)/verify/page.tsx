@@ -9,14 +9,11 @@ function VerifyContent() {
   const params = useSearchParams();
   const router = useRouter();
   const email = params.get('email') ?? '';
-  const [devCode, setDevCode] = useState('');
 
   useEffect(() => {
     try {
       const biz = params.get('biz');
       if (biz) sessionStorage.setItem('sokoos_pending_biz', biz);
-      const dc = sessionStorage.getItem('sokoos_dev_code');
-      if (dc) setDevCode(dc);
     } catch {}
   }, [params]);
   const [token, setToken] = useState('');
@@ -40,8 +37,7 @@ function VerifyContent() {
 
   async function onResend() {
     try {
-      const r = await api.post<{ devCode?: string }>('/auth/resend-verification', { email });
-      if (r?.devCode) setDevCode(r.devCode);
+      await api.post('/auth/resend-verification', { email });
       setResent(true);
     } catch {}
   }
@@ -58,11 +54,7 @@ function VerifyContent() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-border p-8 space-y-4">
         {error && <Alert tone="danger">{error}</Alert>}
-        {resent && <Alert tone="success">Code resent.</Alert>}
-
-        {devCode && (
-          <Alert tone="info">Dev mode — your code is <strong data-testid="dev-code">{devCode}</strong></Alert>
-        )}
+        {resent && <Alert tone="success">Code resent — check your email.</Alert>}
 
         <Input
           label="Verification code"

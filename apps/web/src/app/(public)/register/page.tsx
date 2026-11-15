@@ -47,14 +47,13 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      // Step 1: Register user
-      const reg = await api.post<{ devCode?: string }>('/auth/register', {
+      // Step 1: Register user — the verification code is emailed, never displayed
+      await api.post('/auth/register', {
         fullName: data.fullName,
         email: data.email,
         phone: data.phone.replace(/\s/g, ''),
         password: data.password,
       });
-      try { if (reg?.devCode) sessionStorage.setItem('sokoos_dev_code', reg.devCode); } catch {}
       // Step 2: Create business (after login flow, but simplified here)
       router.push(`/verify?email=${encodeURIComponent(data.email)}&next=onboard&biz=${encodeURIComponent(JSON.stringify({
         businessName: data.businessName,
