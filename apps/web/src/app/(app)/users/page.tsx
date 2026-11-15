@@ -56,8 +56,8 @@ export default function UsersPage() {
       ) : !users?.length ? (
         <EmptyState icon="👥" title="No team members yet" action={<Button onClick={() => setShowInvite(true)}>Invite someone</Button>} />
       ) : (
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
+          <table className="w-full whitespace-nowrap text-sm">
             <thead className="border-b border-border bg-sand/50">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-ink/60">Name</th>

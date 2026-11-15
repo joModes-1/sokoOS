@@ -67,8 +67,8 @@ export default function DayClosurePage() {
         <h2 className="font-semibold text-ink mb-4">Cash count</h2>
         <div className="space-y-3">
           {DENOMINATIONS.map((denom) => (
-            <div key={denom} className="flex items-center gap-4">
-              <div className="w-28">
+            <div key={denom} className="flex items-center gap-2 sm:gap-4">
+              <div className="w-24 sm:w-28 flex-shrink-0">
                 <span className="text-sm font-medium text-ink">UGX {denom.toLocaleString()}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export default function DayClosurePage() {
                   placeholder="0"
                 />
               </div>
-              <div className="flex-1 text-right text-sm text-ink/60">
+              <div className="flex-1 min-w-0 truncate text-right text-sm text-ink/60">
                 = {formatMoney(denom * (counts[denom] ?? 0))}
               </div>
             </div>

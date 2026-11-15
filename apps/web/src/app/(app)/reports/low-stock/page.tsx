@@ -29,8 +29,8 @@ export default function LowStockReportPage() {
           <p className="text-sm text-ink/50 mt-1">No items are below their reorder level.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
+          <table className="w-full whitespace-nowrap text-sm">
             <thead className="border-b border-border bg-sand/50">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-ink/60">Product</th>

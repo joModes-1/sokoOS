@@ -131,8 +131,8 @@ export default function AuditLogsPage() {
       ) : !data?.items?.length ? (
         <Card><EmptyState icon="📋" title="No audit events match these filters" /></Card>
       ) : (
-        <div className="bg-white rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-xl border border-border overflow-x-auto">
+          <table className="w-full whitespace-nowrap text-sm">
             <thead className="border-b border-border bg-sand/50">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-ink/60">Time</th>
@@ -215,8 +215,8 @@ export default function AuditLogsPage() {
       {activity?.recentFailedLogins?.length ? (
         <div className="mt-6">
           <h2 className="mb-3 font-semibold text-ink">Recent failed logins</h2>
-          <div className="bg-white rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-xl border border-border overflow-x-auto">
+            <table className="w-full whitespace-nowrap text-sm">
               <thead className="border-b border-border bg-sand/50">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-ink/60">User</th>
