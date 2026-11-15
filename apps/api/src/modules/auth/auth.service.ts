@@ -46,25 +46,29 @@ export class AuthService {
   async register(input: RegisterInput) {
     // Check duplicates
     const existingEmail = await this.prisma.user.findFirst({ where: { email: input.email } });
-    if (existingEmail) throw new ConflictException({ code: 'DUPLICATE_EMAIL', message: 'An account with this email already exists' });
+    // An unverified account (user left before entering the code) is not "taken":
+    // re-registering overwrites its details and sends a fresh code, like a normal sign-up.
+    const pendingUser = existingEmail?.status === 'PENDING_VERIFICATION' ? existingEmail : null;
+    if (existingEmail && !pendingUser) throw new ConflictException({ code: 'DUPLICATE_EMAIL', message: 'An account with this email already exists' });
 
     if (input.phone) {
       const existingPhone = await this.prisma.user.findFirst({ where: { phone: input.phone } });
-      if (existingPhone) throw new ConflictException({ code: 'DUPLICATE_PHONE', message: 'An account with this phone already exists' });
+      if (existingPhone && existingPhone.id !== pendingUser?.id) throw new ConflictException({ code: 'DUPLICATE_PHONE', message: 'An account with this phone already exists' });
     }
 
     const passwordHash = await argon2.hash(input.password);
+    const data = {
+      email: input.email,
+      phone: input.phone,
+      fullName: input.fullName,
+      passwordHash,
+      status: 'PENDING_VERIFICATION' as const,
+    };
+    const select = { id: true, email: true, fullName: true, status: true };
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: input.email,
-        phone: input.phone,
-        fullName: input.fullName,
-        passwordHash,
-        status: 'PENDING_VERIFICATION',
-      },
-      select: { id: true, email: true, fullName: true, status: true },
-    });
+    const user = pendingUser
+      ? await this.prisma.user.update({ where: { id: pendingUser.id }, data, select })
+      : await this.prisma.user.create({ data, select });
 
     // Create phone verification token
     const code = await this.createVerificationToken(user.id, 'PHONE_VERIFICATION');
