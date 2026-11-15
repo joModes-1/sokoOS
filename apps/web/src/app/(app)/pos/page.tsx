@@ -119,7 +119,8 @@ export default function POSPage() {
   }
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-7rem)]">
+    // Phones: products then order/payment stacked, page scrolls. Desktop: side by side, fixed height.
+    <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-7rem)]">
       {/* Product grid */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center gap-3 mb-4">
@@ -130,7 +131,7 @@ export default function POSPage() {
         {loadingProducts ? (
           <div className="flex justify-center py-16"><Spinner /></div>
         ) : (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto max-h-[55vh] lg:max-h-none">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {(products?.items ?? []).map(product =>
                 product.variants.filter(v => v.isActive).map(variant => (
@@ -163,7 +164,7 @@ export default function POSPage() {
       </div>
 
       {/* Cart */}
-      <div className="w-80 flex-shrink-0 flex flex-col bg-white rounded-xl border border-border">
+      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col bg-white rounded-xl border border-border">
         <div className="p-4 border-b border-border">
           <h2 className="font-semibold text-ink">Order</h2>
           {cart.length > 0 && (
@@ -172,7 +173,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[40vh] lg:max-h-none">
           {cart.length === 0 ? (
             <p className="text-center text-sm text-ink/30 py-8">Add products to start a sale</p>
           ) : (
