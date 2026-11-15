@@ -169,7 +169,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar — full width on mobile (it is the drawer), collapse only applies from md up */}
       <aside
         onClick={(e) => { if ((e.target as HTMLElement).closest('a')) setMobileOpen(false); }}
-        className={`app-sidebar ${collapsed ? 'w-60 md:w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed md:sticky top-0 h-screen z-40 flex flex-col`}>
+        className={`app-sidebar ${collapsed ? 'w-60 md:w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed inset-y-0 left-0 md:sticky md:top-0 md:h-screen z-40 flex flex-col`}>
         {/* Logo + Collapse */}
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 py-4 border-b border-white/10 flex-shrink-0`}>
           {!collapsed && (
