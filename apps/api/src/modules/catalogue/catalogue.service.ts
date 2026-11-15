@@ -75,20 +75,57 @@ export class CatalogueService {
   }
 
   async createProduct(businessId: string, userId: string, input: ProductInput) {
+    // The web form sends { sku, taxBps, variants: [{ name, barcode, unitCostMinor, unitPriceMinor, reorderQty }] };
+    // the schema stores SKU/barcode on the variant and uses taxRateBp / *PriceMinor. Map explicitly —
+    // never spread the request body into Prisma (unknown keys crash the create).
+    const body = input as ProductInput & {
+      sku?: string; taxBps?: number;
+      variants?: { name?: string; variantName?: string; sku?: string; barcode?: string | null; unitCostMinor?: number; unitPriceMinor?: number; reorderQty?: number }[];
+    };
+    const v = body.variants?.[0] ?? {};
+    const cost = BigInt(Math.max(0, Math.round(Number(v.unitCostMinor ?? body.costPriceMinor ?? 0) || 0)));
+    const price = BigInt(Math.max(0, Math.round(Number(v.unitPriceMinor ?? body.sellingPriceMinor ?? 0) || 0)));
+    const barcode = v.barcode?.trim() || null;
+    const requestedSku = (v.sku ?? body.sku)?.trim().toUpperCase();
+
+    if (!body.name?.trim()) throw new BadRequestException({ code: 'VALIDATION_ERROR', message: 'Product name required' });
+    if (requestedSku) {
+      const skuExists = await this.prisma.productVariant.findFirst({ where: { businessId, sku: requestedSku, deletedAt: null } });
+      if (skuExists) throw new ConflictException({ code: 'DUPLICATE_SKU', message: `SKU "${requestedSku}" already exists — change it and try again` });
+    }
+    if (barcode) {
+      const barcodeExists = await this.prisma.productVariant.findFirst({ where: { businessId, barcode, deletedAt: null } });
+      if (barcodeExists) throw new ConflictException({ code: 'DUPLICATE_BARCODE', message: `Barcode "${barcode}" already exists` });
+    }
+
     return this.prisma.$transaction(async (tx) => {
       const product = await tx.product.create({
-        data: { businessId, ...input },
-        include: { variants: true },
+        data: {
+          businessId,
+          name: body.name.trim(),
+          categoryId: body.categoryId || null,
+          brandId: body.brandId || null,
+          unitOfMeasure: body.unitOfMeasure,
+          costPriceMinor: cost,
+          sellingPriceMinor: price,
+          taxRateBp: body.taxBps ?? body.taxRateBp ?? 1800,
+          isBatchTracked: body.isBatchTracked ?? false,
+          reorderLevel: v.reorderQty ?? body.reorderLevel ?? 0,
+        },
       });
 
-      // Auto-create a default variant
-      const defaultSku = `${product.name.toUpperCase().replace(/[^A-Z0-9]/g, '-').slice(0, 20)}-${product.id.slice(0, 6).toUpperCase()}`;
+      // First variant carries the SKU (auto-generated when the client sends none)
+      const sku = requestedSku
+        || `${product.name.toUpperCase().replace(/[^A-Z0-9]/g, '-').slice(0, 20)}-${product.id.slice(0, 6).toUpperCase()}`;
       await tx.productVariant.create({
         data: {
           businessId,
           productId: product.id,
-          sku: defaultSku,
-          variantName: 'Default',
+          sku,
+          barcode,
+          variantName: v.name ?? v.variantName ?? 'Default',
+          costPriceMinor: cost,
+          sellingPriceMinor: price,
         },
       });
 

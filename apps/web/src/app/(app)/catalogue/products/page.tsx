@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useProducts, useCategories, useBrands } from '@/hooks/use-queries';
 import { formatMoney } from '@/lib/format';
-import { PageHeader, SearchInput, Badge, Spinner, EmptyState, Button, Modal, Input, Select, Textarea } from '@/components/ui';
+import { PageHeader, SearchInput, Badge, Spinner, EmptyState, Button, Modal, Input, Select, Textarea, Alert } from '@/components/ui';
 import { api } from '@/lib/api-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
@@ -53,6 +53,7 @@ export default function ProductsPage() {
   });
 
   // Auto-fill SKU from the name until the user edits the SKU field themselves.
+  const [saveError, setSaveError] = useState('');
   const [skuEdited, setSkuEdited] = useState(false);
   const [skuSuffix, setSkuSuffix] = useState(newSkuSuffix);
   const watchedName = watch('name');
@@ -63,12 +64,14 @@ export default function ProductsPage() {
 
   function resetForm() {
     reset();
+    setSaveError('');
     setSkuEdited(false);
     setSkuSuffix(newSkuSuffix());
   }
 
   async function onSave(data: ProductForm) {
     setSaving(true);
+    setSaveError('');
     try {
       await api.post('/catalogue/products', {
         sku: data.sku,
@@ -80,15 +83,18 @@ export default function ProductsPage() {
         variants: [{
           name: data.variantName,
           barcode: data.barcode || undefined,
-          unitCostMinor: parseInt((parseFloat(data.unitCostMinor) * 100).toString()),
-          unitPriceMinor: parseInt((parseFloat(data.unitPriceMinor) * 100).toString()),
-          reorderQty: parseInt(data.reorderQty),
+          // UGX has no minor unit in this app — amounts are whole shillings (formatMoney doesn't divide).
+          unitCostMinor: Math.round(parseFloat(data.unitCostMinor) || 0),
+          unitPriceMinor: Math.round(parseFloat(data.unitPriceMinor) || 0),
+          reorderQty: parseInt(data.reorderQty) || 0,
         }],
       });
       qc.invalidateQueries({ queryKey: queryKeys.products(businessId) });
       setShowAdd(false);
       resetForm();
-    } catch {}
+    } catch (e: unknown) {
+      setSaveError((e as { message?: string })?.message ?? 'Could not save product');
+    }
     setSaving(false);
   }
 
@@ -178,6 +184,7 @@ export default function ProductsPage() {
         }
       >
         <form className="space-y-4">
+          {saveError && <Alert tone="danger">{saveError}</Alert>}
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="SKU (auto, editable)"
