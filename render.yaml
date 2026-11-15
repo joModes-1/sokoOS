@@ -1,11 +1,7 @@
-# Render blueprint — SokoOS (api + web + Postgres). Redis is added when the worker ships.
+# Render blueprint — SokoOS (api + web).
+# Database is external (Supabase Postgres), so there is no Render database block:
+# paste the Supabase connection string into DATABASE_URL in the Render dashboard.
 # Docs: https://render.com/docs/blueprint-spec
-databases:
-  - name: sokoos-postgres
-    databaseName: sokoos
-    user: sokoos
-    plan: basic-256mb
-
 services:
   # ── API (NestJS, Fastify) ────────────────────────────────────────────────
   - type: web
@@ -25,26 +21,40 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Supabase Postgres — the direct host (db.<ref>.supabase.co) needs IPv6;
+      # if the Render runtime lacks it, use the Supabase session-pooler URL.
       - key: DATABASE_URL
-        fromDatabase:
-          name: sokoos-postgres
-          property: connectionString
+        sync: false
+      - key: DIRECT_URL
+        sync: false          # same value as DATABASE_URL
       - key: JWT_SECRET
         generateValue: true
       - key: REFRESH_TOKEN_SECRET
         generateValue: true
+      # Comma-separated allow-list (matches main.ts CORS).
       - key: FRONTEND_URL
-        sync: false          # set to the web service's public URL after first deploy
+        value: "https://soko.villacode.site,http://localhost:3000"
       - key: PILOT_MODE
-        sync: false          # true ONLY until a real SMS provider is wired (B-2)
+        value: "true"        # true ONLY until a real SMS provider is wired (B-2)
       - key: SMS_PROVIDER
         value: mock
+      - key: WHATSAPP_PROVIDER
+        value: mock
+      # ── Email (SMTP) ───────────────────────────────────────────────────────
       - key: SMTP_HOST
-        sync: false
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
       - key: SMTP_USER
-        sync: false
+        value: jomodes765@gmail.com
       - key: SMTP_PASS
-        sync: false
+        sync: false          # Gmail app password — set in the Render dashboard, never commit it
+      - key: EMAIL_FROM
+        value: "SokoOS <jomodes765@gmail.com>"
+      - key: SUPPORT_EMAIL
+        value: jomodes765@gmail.com
 
   # ── Web (Next.js) ─────────────────────────────────────────────────────────
   - type: web
@@ -61,6 +71,6 @@ services:
     envVars:
       # Inlined into the client bundle at build time — must be the API's PUBLIC origin.
       - key: NEXT_PUBLIC_API_URL
-        sync: false
+        value: "https://sokoapi.villacode.site"
       - key: NEXT_PUBLIC_APP_URL
-        sync: false
+        value: "https://soko.villacode.site"
