@@ -3,7 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
   PORT: z.coerce.number().default(3001),
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
 
   DATABASE_URL: z.string().url(),
   DIRECT_URL: z.string().url().optional(),
@@ -57,12 +57,24 @@ const envSchema = z.object({
     .transform((value) => value === 'true'),
 })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV !== 'production') return;
-    if (env.FRONTEND_URL.includes('localhost')) {
+    // FRONTEND_URL accepts one origin or a comma-separated allow-list (matches main.ts CORS).
+    const frontendOrigins = env.FRONTEND_URL.split(',').map((s) => s.trim()).filter(Boolean);
+    const invalidOrigin = frontendOrigins.find((s) => {
+      try { return !new URL(s) && false; } catch { return true; }
+    });
+    if (invalidOrigin) {
       ctx.addIssue({
         code: 'custom',
         path: ['FRONTEND_URL'],
-        message: 'FRONTEND_URL must be the deployed web origin in production (CORS is locked to it)',
+        message: `FRONTEND_URL must be one or more comma-separated URLs (invalid: ${invalidOrigin})`,
+      });
+    }
+    if (env.NODE_ENV !== 'production') return;
+    if (frontendOrigins.length > 0 && frontendOrigins.every((s) => s.includes('localhost'))) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['FRONTEND_URL'],
+        message: 'FRONTEND_URL must include the deployed web origin in production (CORS is locked to it)',
       });
     }
     for (const key of ['JWT_SECRET', 'REFRESH_TOKEN_SECRET'] as const) {

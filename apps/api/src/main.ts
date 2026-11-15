@@ -25,8 +25,13 @@ async function bootstrap() {
     contentSecurityPolicy: process.env.NODE_ENV === 'production',
   });
 
+  // FRONTEND_URL accepts one URL or a comma-separated list (e.g. prod + localhost for testing).
+  const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
