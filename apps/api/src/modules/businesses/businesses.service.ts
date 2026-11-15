@@ -105,19 +105,16 @@ export class BusinessesService {
         roles.push({ id: role.id, code });
       }
 
-      // Assign permissions to each role
-      for (const role of roles) {
-        const rolePerms = ROLE_DEFAULTS[role.code as keyof typeof ROLE_DEFAULTS] as readonly string[];
-        for (const permCode of rolePerms) {
-          const perm = await tx.permission.findFirst({ where: { code: permCode } });
-          if (perm) {
-            await tx.rolePermission.createMany({
-              data: [{ roleId: role.id, permissionId: perm.id }],
-              skipDuplicates: true,
-            });
-          }
-        }
-      }
+      // Assign permissions to each role — one lookup + one bulk insert (a query per
+      // permission is 100+ round trips, which times out against a remote DB).
+      const allPerms = await tx.permission.findMany({ select: { id: true, code: true } });
+      const permIdByCode = new Map(allPerms.map(p => [p.code, p.id]));
+      const rolePermRows = roles.flatMap(role =>
+        (ROLE_DEFAULTS[role.code as keyof typeof ROLE_DEFAULTS] as readonly string[])
+          .filter(code => permIdByCode.has(code))
+          .map(code => ({ roleId: role.id, permissionId: permIdByCode.get(code)! })),
+      );
+      await tx.rolePermission.createMany({ data: rolePermRows, skipDuplicates: true });
 
       // Assign BUSINESS_ADMIN role to the owner
       const adminRole = roles.find(r => r.code === 'BUSINESS_ADMIN')!;
@@ -131,7 +128,7 @@ export class BusinessesService {
       });
 
       return { business, branch };
-    });
+    }, { maxWait: 10_000, timeout: 30_000 });
   }
 
   async getProfile(businessId: string, userId: string) {
