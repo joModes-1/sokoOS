@@ -14,6 +14,7 @@ import { TransfersModule } from './modules/transfers/transfers.module.js';
 import { PurchasingModule } from './modules/purchasing/purchasing.module.js';
 import { SalesModule } from './modules/sales/sales.module.js';
 import { DebtsModule } from './modules/debts/debts.module.js';
+import { SupplierDebtsModule } from './modules/supplier-debts/supplier-debts.module.js';
 import { PaymentsModule } from './modules/payments/payments.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
@@ -50,6 +51,7 @@ import envSchema from './config/env.schema.js';
     PurchasingModule,
     SalesModule,
     DebtsModule,
+    SupplierDebtsModule,
     PaymentsModule,
     NotificationsModule,
     AuditModule,

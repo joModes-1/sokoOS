@@ -80,7 +80,7 @@ function NavItem({ href, label, icon, active, collapsed }: {
     <Link
       href={href}
       title={collapsed ? label : undefined}
-      className={`nav-item ${active ? 'active' : ''} ${collapsed ? 'justify-center px-2' : ''}`}
+      className={`nav-item ${active ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
     >
       <Icon name={resolvedIcon} />
       {!collapsed && <span>{label}</span>}
@@ -162,7 +162,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Sidebar */}
-      <aside className={`app-sidebar ${collapsed ? 'w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed md:sticky top-0 h-screen z-40 flex flex-col`}>
+      {/* Sidebar — full width on mobile (it is the drawer), collapse only applies from md up */}
+      <aside className={`app-sidebar ${collapsed ? 'w-60 md:w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed md:sticky top-0 h-screen z-40 flex flex-col`}>
         {/* Logo + Collapse */}
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 py-4 border-b border-white/10 flex-shrink-0`}>
           {!collapsed && (
@@ -212,23 +213,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             />
           ))}
 
-          {/* User + Sign out */}
-          <div className={`flex items-center gap-2 mt-2 px-2 py-2 ${collapsed ? 'justify-center' : ''}`}>
+          {/* User + Sign out — stacked when collapsed so sign-out is always reachable */}
+          <div className={`mt-2 px-2 py-2 ${collapsed ? 'flex flex-col items-center gap-2' : 'flex items-center gap-2'}`}>
             <Avatar name={userName} size="sm" />
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-white/70 truncate">{userName}</p>
               </div>
             )}
-            {!collapsed && (
-              <button
-                onClick={handleSignOut}
-                className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                title="Sign out"
-              >
-                <Icon name="sign-out" />
-              </button>
-            )}
+            <button
+              onClick={handleSignOut}
+              className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <Icon name="sign-out" />
+            </button>
           </div>
         </div>
       </aside>

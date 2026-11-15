@@ -26,5 +26,21 @@ export const WriteOffDebtSchema = z.object({
   reason: z.string().trim().max(300).optional().nullable(),
 });
 
+/**
+ * The mirror side of the ledger: goods the shop itself took from a wholesaler on credit. The
+ * supplier must already exist (pick them from the Suppliers list); `poNumber` is free text so a
+ * debt can reference the order it came from. Payments reuse `RecordDebtPaymentSchema` — the shop
+ * settles the same way its customers do.
+ */
+export const CreateSupplierDebtSchema = z.object({
+  supplierId: z.string().uuid('Pick a supplier'),
+  itemSummary: z.string().trim().max(300).optional().nullable(),
+  poNumber: z.string().trim().max(60).optional().nullable(),
+  amountMinor: z.coerce.bigint().positive('Amount must be more than zero'),
+  dueAt: z.string().datetime({ offset: true }).or(z.string().date()).optional().nullable(),
+  note: z.string().trim().max(500).optional().nullable(),
+});
+
 export type CreateDebtInput = z.infer<typeof CreateDebtSchema>;
 export type RecordDebtPaymentInput = z.infer<typeof RecordDebtPaymentSchema>;
+export type CreateSupplierDebtInput = z.infer<typeof CreateSupplierDebtSchema>;

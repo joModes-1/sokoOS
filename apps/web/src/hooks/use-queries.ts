@@ -878,6 +878,101 @@ export function useWriteOffDebt() {
   });
 }
 
+// ── Debts (supplier credit — what the shop owes its wholesalers) ──────────────
+export interface SupplierDebt {
+  id: string;
+  supplierId: string;
+  supplierName: string;
+  supplierPhone: string | null;
+  poNumber: string | null;
+  itemSummary: string | null;
+  amountMinor: number;
+  paidMinor: number;
+  balanceMinor: number;
+  currency: string;
+  status: Debt['status'];
+  dueAt: string | null;
+  note: string | null;
+  settledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  payments: DebtPayment[];
+}
+
+export interface SupplierDebtsPage {
+  items: SupplierDebt[];
+  total: number;
+  outstandingMinor: number;
+  openCount: number;
+  overdueCount: number;
+  paidThisMonthMinor: number;
+}
+
+export function useSupplierDebts(filters?: { status?: string; q?: string; supplierId?: string }) {
+  const { businessId } = useBusinessContext();
+  return useQuery({
+    queryKey: queryKeys.supplierDebts(businessId, filters),
+    queryFn: () => {
+      const p = new URLSearchParams();
+      if (filters?.status) p.set('status', filters.status);
+      if (filters?.q) p.set('q', filters.q);
+      if (filters?.supplierId) p.set('supplierId', filters.supplierId);
+      return api.get<{ data: SupplierDebt[]; total: number; outstandingMinor: number; openCount: number; overdueCount: number; paidThisMonthMinor: number }>(`/supplier-debts?${p}`)
+        .then(raw => ({
+          items: raw.data, total: raw.total, outstandingMinor: raw.outstandingMinor,
+          openCount: raw.openCount, overdueCount: raw.overdueCount, paidThisMonthMinor: raw.paidThisMonthMinor,
+        }) as SupplierDebtsPage);
+    },
+    enabled: !!businessId,
+  });
+}
+
+/** Every supplier-debt mutation moves the dashboard totals, so mutations share one invalidator. */
+function useSupplierDebtInvalidator() {
+  const qc = useQueryClient();
+  const { businessId, branchId } = useBusinessContext();
+  return () => {
+    void qc.invalidateQueries({ queryKey: ['supplier-debts', businessId] });
+    void qc.invalidateQueries({ queryKey: queryKeys.dashboard(businessId, branchId) });
+  };
+}
+
+export interface CreateSupplierDebtPayload {
+  supplierId: string;
+  itemSummary?: string;
+  poNumber?: string;
+  amountMinor: number;
+  dueAt?: string;
+  note?: string;
+}
+
+export function useCreateSupplierDebt() {
+  const invalidate = useSupplierDebtInvalidator();
+  return useMutation({
+    mutationFn: (payload: CreateSupplierDebtPayload) => api.post<SupplierDebt>('/supplier-debts', payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRecordSupplierDebtPayment() {
+  const invalidate = useSupplierDebtInvalidator();
+  return useMutation({
+    mutationFn: ({ debtId, ...payload }: {
+      debtId: string; amountMinor: number; method: 'CASH' | 'MTN_MOMO' | 'AIRTEL_MONEY'; note?: string;
+    }) => api.post<SupplierDebt>(`/supplier-debts/${debtId}/payments`, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useWriteOffSupplierDebt() {
+  const invalidate = useSupplierDebtInvalidator();
+  return useMutation({
+    mutationFn: ({ debtId, reason }: { debtId: string; reason?: string }) =>
+      api.post<SupplierDebt>(`/supplier-debts/${debtId}/write-off`, { reason }),
+    onSuccess: invalidate,
+  });
+}
+
 export interface DemoSeedResult {
   ok: boolean;
   businessName?: string;

@@ -11,8 +11,7 @@
   --sidebar-text: #D4B8A5;
   --sidebar-text-active: #FFFFFF;
   --sidebar-text-muted: #8B6554;
-  --sidebar-width: 210px;
-  --sidebar-collapsed: 56px;
+  --sidebar-collapsed: 64px;
   --soil-rgb: 58 34 22;
   --soil-dark-rgb: 42 24 16;
   --soil-light-rgb: 77 46 30;
@@ -231,7 +230,8 @@ html, body {
 }
 
 .app-sidebar {
-  width: var(--sidebar-width);
+  /* Width is owned by the layout component (w-60 expanded, w-16 collapsed) so the collapse
+     toggle actually changes it — a width here would win the cascade over the Tailwind classes. */
   background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
@@ -297,6 +297,12 @@ html, body {
   opacity: .85;
 }
 .nav-item.active .nav-icon { opacity: 1; }
+/* Icon-only rail: center the icon, drop the wide padding that would clip it. */
+.nav-item.collapsed {
+  justify-content: center;
+  padding: 8px 0;
+  margin: 1px 6px;
+}
 
 /* ── Typography helpers ─────────────────────────────────────────────────── */
 .page-title {
@@ -490,7 +496,8 @@ html, body {
   background-attachment: local, local, scroll, scroll;
 }
 
-@media (max-width: 768px) {
-  .app-sidebar { display: none; }
+/* Below Tailwind's `md` breakpoint the sidebar becomes an off-canvas drawer: the component
+   positions it (fixed + translate) and this query only adjusts page padding. */
+@media (max-width: 767.98px) {
   .app-content { padding: 16px; }
 }

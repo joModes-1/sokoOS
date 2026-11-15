@@ -46,6 +46,9 @@ export const queryKeys = {
   debtSummary: (businessId: string) => ['debts-summary', businessId] as const,
   debtsByPerson: (businessId: string, q?: string) => ['debts-by-person', businessId, q] as const,
 
+  // Debts (supplier credit — what the shop owes its wholesalers)
+  supplierDebts: (businessId: string, filters?: object) => ['supplier-debts', businessId, filters] as const,
+
   // Reports
   salesReport: (businessId: string, filters?: object) => ['report-sales', businessId, filters] as const,
   stockReport: (businessId: string, branchId?: string) => ['report-stock', businessId, branchId] as const,
