@@ -10,6 +10,7 @@ import * as OTPAuth from 'otpauth';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
+import { MailerService } from '../../common/mailer/mailer.service.js';
 import type { Env } from '../../config/env.schema.js';
 import type { RegisterInput, LoginInput } from '@sokoos/shared';
 
@@ -38,6 +39,7 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService<Env>,
     private audit: AuditService,
+    private mailer: MailerService,
   ) {}
 
   // ── Register ─────────────────────────────────────────────────────────────
@@ -66,11 +68,13 @@ export class AuthService {
 
     // Create phone verification token
     const code = await this.createVerificationToken(user.id, 'PHONE_VERIFICATION');
+    // Real delivery: the code goes to the user's email (fail-soft — see MailerService).
+    await this.mailer.sendVerificationCode(user.email, code, 'account verification');
 
     this.logger.log(`User registered: ${user.id}`);
     return {
       userId: user.id,
-      message: 'Verification code sent to your phone',
+      message: 'Verification code sent to your email',
       ...(this.exposeDevCodes && { devCode: code }),
     };
   }
@@ -88,6 +92,7 @@ export class AuthService {
       return { message: 'If the account needs verification, a new code has been sent.' };
     }
     const code = await this.createVerificationToken(user.id, 'PHONE_VERIFICATION');
+    await this.mailer.sendVerificationCode(user.email, code, 'account verification');
     return {
       message: 'If the account needs verification, a new code has been sent.',
       ...(this.exposeDevCodes && { devCode: code }),
@@ -301,10 +306,11 @@ export class AuthService {
     if (user) {
       const code = await this.createVerificationToken(user.id, 'PASSWORD_RESET', PASSWORD_RESET_TTL_MINUTES);
       this.logger.log(`Password reset requested for ${user.id}`);
+      await this.mailer.sendVerificationCode(user.email, code, 'password reset');
       devCode = this.exposeDevCodes ? code : undefined;
     }
     return {
-      message: 'If the account exists, a reset code has been sent to the registered phone number.',
+      message: 'If the account exists, a reset code has been sent to the registered email address.',
       ...(devCode && { devCode }),
     };
   }

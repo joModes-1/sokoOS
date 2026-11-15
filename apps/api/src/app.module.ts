@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { MailerModule } from './common/mailer/mailer.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { BusinessesModule } from './modules/businesses/businesses.module.js';
 import { BranchesModule } from './modules/branches/branches.module.js';
@@ -41,6 +42,7 @@ import envSchema from './config/env.schema.js';
     }]),
     ScheduleModule.forRoot(),
     PrismaModule,
+    MailerModule,
     AuthModule,
     BusinessesModule,
     BranchesModule,
