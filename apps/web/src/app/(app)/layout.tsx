@@ -96,6 +96,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Mobile drawer: close it whenever a nav link takes us to another page.
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
   // Get industry from session storage
   const [industryCode, setIndustryCode] = useState('RETAIL');
   const [businessName, setBusinessName] = useState('My Business');
@@ -164,7 +167,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       {/* Sidebar — full width on mobile (it is the drawer), collapse only applies from md up */}
-      <aside className={`app-sidebar ${collapsed ? 'w-60 md:w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed md:sticky top-0 h-screen z-40 flex flex-col`}>
+      <aside
+        onClick={(e) => { if ((e.target as HTMLElement).closest('a')) setMobileOpen(false); }}
+        className={`app-sidebar ${collapsed ? 'w-60 md:w-16' : 'w-60'} ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} transition-all duration-200 ease-in-out fixed md:sticky top-0 h-screen z-40 flex flex-col`}>
         {/* Logo + Collapse */}
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 py-4 border-b border-white/10 flex-shrink-0`}>
           {!collapsed && (
