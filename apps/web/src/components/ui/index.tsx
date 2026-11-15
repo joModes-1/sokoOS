@@ -15,7 +15,7 @@ const btnVariants: Record<BtnVariant, string> = {
   primary: 'bg-sunset text-white hover:bg-sunset-hover focus-visible:ring-sunset',
   secondary: 'bg-sand border border-border text-ink hover:bg-peach focus-visible:ring-ochre',
   ghost: 'text-ink/70 hover:bg-sand hover:text-ink focus-visible:ring-ochre',
-  danger: 'bg-danger text-white hover:bg-red-700 focus-visible:ring-danger',
+  danger: 'bg-danger text-white hover:bg-danger-dark focus-visible:ring-danger',
 };
 
 const btnSizes: Record<BtnSize, string> = {
@@ -67,7 +67,7 @@ const badgeTones: Record<BadgeTone, string> = {
   success: 'bg-success/10 text-success border-success/20',
   warning: 'bg-warning/10 text-warning border-warning/20',
   danger: 'bg-danger/10 text-danger border-danger/20',
-  info: 'bg-blue-50 text-blue-700 border-blue-200',
+  info: 'bg-info/10 text-info-dark border-info/20',
   neutral: 'bg-sand text-ink/60 border-border',
 };
 
@@ -403,7 +403,7 @@ export function Alert({ tone = 'info', title, children, className = '' }: {
   className?: string;
 }) {
   const colors = {
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
+    info: 'bg-info/10 border-info/20 text-info-dark',
     success: 'bg-success/10 border-success/20 text-success',
     warning: 'bg-warning/10 border-warning/20 text-warning',
     danger: 'bg-danger/10 border-danger/20 text-danger',

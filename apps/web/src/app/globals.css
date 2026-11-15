@@ -242,6 +242,22 @@ html, body {
 }
 .app-sidebar::-webkit-scrollbar { display: none; }
 
+/* The nav is the element that actually scrolls — give it a slim, theme-aware scrollbar
+   instead of the default browser one. Thumb stays faint until the rail is hovered. */
+.app-sidebar nav {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sidebar-text-muted) 40%, transparent) transparent;
+}
+.app-sidebar nav::-webkit-scrollbar { width: 6px; }
+.app-sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.app-sidebar nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sidebar-text-muted) 40%, transparent);
+}
+.app-sidebar nav:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--sidebar-text-muted) 75%, transparent);
+}
+
 .app-main {
   flex: 1;
   display: flex;
@@ -297,11 +313,15 @@ html, body {
   opacity: .85;
 }
 .nav-item.active .nav-icon { opacity: 1; }
-/* Icon-only rail: center the icon, drop the wide padding that would clip it. */
+/* Icon-only rail: a circular chip, so hover/active reads as a round button instead of a
+   squashed pill. Only collapsed items are round — expanded ones keep the 7px pill. */
 .nav-item.collapsed {
   justify-content: center;
-  padding: 8px 0;
-  margin: 1px 6px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  margin: 2px auto;
+  border-radius: 9999px;
 }
 
 /* ── Typography helpers ─────────────────────────────────────────────────── */

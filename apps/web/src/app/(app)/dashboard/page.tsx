@@ -118,10 +118,10 @@ export default function DashboardPage() {
 
       {d && view && (
         <>
-          {/* What's happening */}
+          {/* What's happening — gradient follows the theme (soil dark → soil → brand accent) */}
           <section
             className="relative mb-6 overflow-hidden rounded-2xl p-6 text-white shadow-sm"
-            style={{ background: 'linear-gradient(120deg, #3A2216 0%, #5a2f1a 55%, #9a3a0e 100%)' }}
+            style={{ background: 'linear-gradient(120deg, rgb(var(--soil-dark-rgb)) 0%, rgb(var(--soil-rgb)) 55%, var(--brand) 100%)' }}
             aria-label="Summary"
           >
             <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-white/5" />
@@ -131,8 +131,8 @@ export default function DashboardPage() {
               <>
                 <p className="mt-2 font-display text-xl font-bold leading-snug md:text-2xl">
                   {d.kpis.transactionsToday > 0
-                    ? <>You&apos;ve made <span className="text-[#ffb98a]">{formatMoney(d.kpis.revenueToday)}</span> from {d.kpis.transactionsToday} sales today.</>
-                    : <>No sales yet today — yesterday you made <span className="text-[#ffb98a]">{formatMoney(d.kpis.revenueYesterday)}</span>.</>}
+                    ? <>You&apos;ve made <span className="text-sunset-light">{formatMoney(d.kpis.revenueToday)}</span> from {d.kpis.transactionsToday} sales today.</>
+                    : <>No sales yet today — yesterday you made <span className="text-sunset-light">{formatMoney(d.kpis.revenueYesterday)}</span>.</>}
                 </p>
                 <ul className="mt-4 grid gap-2 text-sm text-white/85 sm:grid-cols-2 xl:grid-cols-4">
                   <li className="rounded-lg bg-white/10 px-3 py-2">
@@ -166,7 +166,6 @@ export default function DashboardPage() {
               label="Revenue · last 7 days"
               value={formatMoney(d.kpis.revenue7d)}
               spark={d.salesByDay.slice(-14).map(x => x.revenue)}
-              sparkColor={CHART.revenue}
             >
               <Delta pct={pctChange(d.kpis.revenue7d, d.kpis.revenuePrev7d)} suffix="vs previous 7 days" />
             </Kpi>
@@ -174,7 +173,6 @@ export default function DashboardPage() {
               label="Today's sales"
               value={formatMoney(d.kpis.revenueToday)}
               spark={d.salesByDay.slice(-14).map(x => x.transactions)}
-              sparkColor={CHART.revenue}
             >
               <span className="text-xs text-ink/50">{d.kpis.transactionsToday} sales · yesterday {money(d.kpis.revenueYesterday)} ({d.kpis.transactionsYesterday})</span>
             </Kpi>
@@ -192,7 +190,6 @@ export default function DashboardPage() {
               label="Average basket"
               value={formatMoney(d.kpis.avgBasketRange)}
               spark={d.salesByDay.slice(-14).map(x => (x.transactions ? x.revenue / x.transactions : 0))}
-              sparkColor={CHART.revenue}
             >
               <span className="text-xs text-ink/50">{d.kpis.transactionsRange.toLocaleString('en-UG')} sales in {d.rangeDays} days</span>
             </Kpi>
@@ -266,7 +263,6 @@ export default function DashboardPage() {
               <SectionTitle title="Top products" hint={`By revenue, last ${d.rangeDays} days`} action={<Link href="/reports/sales" className="text-xs text-sunset hover:underline">Report →</Link>} />
               {d.topProducts.length ? (
                 <BarList
-                  color={CHART.revenue}
                   items={d.topProducts.map(p => ({ label: p.name, value: p.revenue, note: `${Math.round(p.qty)} sold` }))}
                 />
               ) : <EmptyState title="No sales yet" />}
@@ -320,7 +316,7 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-sand-dark">
-                          <div className="h-full rounded-full" style={{ width: `${Math.max(pct, out ? 0 : 4)}%`, background: out ? '#DC2626' : '#D97706' }} />
+                          <div className="h-full rounded-full" style={{ width: `${Math.max(pct, out ? 0 : 4)}%`, background: out ? 'var(--danger)' : 'var(--warning)' }} />
                         </div>
                       </li>
                     );

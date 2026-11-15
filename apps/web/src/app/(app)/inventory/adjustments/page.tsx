@@ -69,7 +69,7 @@ export default function AdjustmentsPage() {
         actions={<Button onClick={() => setShowAdd(true)}>+ New adjustment</Button>}
       />
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+      <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 text-sm text-warning-dark">
         <strong>Audit note:</strong> Every adjustment requires a reason and is permanently logged in the audit trail. Adjustments cannot be deleted.
       </div>
 

@@ -38,7 +38,7 @@ export function DevSeedButton() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-30 flex flex-col items-end gap-1.5 print:hidden">
+    <div className="fixed bottom-[4.25rem] right-4 z-30 flex flex-col items-end gap-1.5 print:hidden">
       {note && (
         <div className="max-w-xs rounded-lg bg-ink px-3 py-2 text-xs text-white shadow-lg">
           {note}

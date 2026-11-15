@@ -4,10 +4,13 @@
  * Dashboard chart primitives - plain SVG/HTML, no chart library.
  *
  * Colour roles (validated with the dataviz palette checker, all-pairs, light surface):
- *   REVENUE  #c2410c  money coming in (brand sunset)
- *   PROFIT   #0e8f82  what is left after cost
- *   MIX      #6250d6  breakdowns (categories, payment methods)
+ *   REVENUE  the theme's brand accent (--brand)  — money coming in
+ *   PROFIT   #0e8f82  what is left after cost    — fixed data-series colour
+ *   MIX      #6250d6  breakdowns                 — fixed data-series colour
  * Text always wears ink tokens; the coloured mark beside it carries identity.
+ *
+ * SVG presentation attributes cannot hold `var()`, so the theme colours are resolved to concrete
+ * strings once per mount (and again whenever `data-brand` flips) — see `useChartColors`.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -21,6 +24,39 @@ export const CHART = {
   axis: 'rgba(28,15,5,0.45)',
   surface: '#ffffff',
 } as const;
+
+type ChartColors = Record<keyof typeof CHART, string>;
+
+/** Defaults (= :root in globals.css), used until/if the live theme vars resolve. */
+const FALLBACK: ChartColors = CHART;
+
+/** Resolve the chart palette from the live theme; re-resolves when Settings → Appearance flips it. */
+export function useChartColors(): ChartColors {
+  const [colors, setColors] = useState<ChartColors>(FALLBACK);
+  useEffect(() => {
+    const root = document.documentElement;
+    const resolve = () => {
+      const s = getComputedStyle(root);
+      const v = (name: string) => s.getPropertyValue(name).trim();
+      const brand = v('--brand-rgb');
+      const text = v('--text-rgb');
+      const surface = v('--surface');
+      setColors({
+        revenue: brand ? `rgb(${brand})` : FALLBACK.revenue,
+        profit: FALLBACK.profit,
+        mix: FALLBACK.mix,
+        grid: text ? `rgb(${text} / 0.07)` : FALLBACK.grid,
+        axis: text ? `rgb(${text} / 0.45)` : FALLBACK.axis,
+        surface: surface || FALLBACK.surface,
+      });
+    };
+    resolve();
+    const mo = new MutationObserver(resolve);
+    mo.observe(root, { attributes: true, attributeFilter: ['data-brand'] });
+    return () => mo.disconnect();
+  }, []);
+  return colors;
+}
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function useWidth<T extends HTMLElement>() {
@@ -71,7 +107,9 @@ function Swatch({ color }: { color: string }) {
 }
 
 // ── Sparkline ────────────────────────────────────────────────────────────────
-export function Sparkline({ values, color = CHART.revenue, height = 36 }: { values: number[]; color?: string; height?: number }) {
+export function Sparkline({ values, color, height = 36 }: { values: number[]; color?: string; height?: number }) {
+  const C = useChartColors();
+  const stroke = color ?? C.revenue;
   const [ref, width] = useWidth<HTMLDivElement>();
   const max = Math.max(...values, 1);
   const min = Math.min(...values, 0);
@@ -85,8 +123,8 @@ export function Sparkline({ values, color = CHART.revenue, height = 36 }: { valu
     <div ref={ref} className="w-full" aria-hidden>
       {width > 0 && pts.length > 1 && (
         <svg width={width} height={height}>
-          <polyline points={pts.map(p => p.join(',')).join(' ')} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          {last && <circle cx={last[0]} cy={last[1]} r={3.5} fill={color} stroke={CHART.surface} strokeWidth={2} />}
+          <polyline points={pts.map(p => p.join(',')).join(' ')} fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          {last && <circle cx={last[0]} cy={last[1]} r={3.5} fill={stroke} stroke={C.surface} strokeWidth={2} />}
         </svg>
       )}
     </div>
@@ -97,6 +135,7 @@ export function Sparkline({ values, color = CHART.revenue, height = 36 }: { valu
 export interface DayPoint { date: string; revenue: number; profit: number; transactions: number }
 
 export function TrendChart({ data, height = 280 }: { data: DayPoint[]; height?: number }) {
+  const C = useChartColors();
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const [table, setTable] = useState(false);
@@ -115,8 +154,8 @@ export function TrendChart({ data, height = 280 }: { data: DayPoint[]; height?: 
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-ink/70">
-        <span className="inline-flex items-center gap-1.5"><Swatch color={CHART.revenue} /> Revenue</span>
-        <span className="inline-flex items-center gap-1.5"><Swatch color={CHART.profit} /> Gross profit</span>
+        <span className="inline-flex items-center gap-1.5"><Swatch color={C.revenue} /> Revenue</span>
+        <span className="inline-flex items-center gap-1.5"><Swatch color={C.profit} /> Gross profit</span>
         <button
           type="button"
           onClick={() => setTable(t => !t)}
@@ -161,33 +200,33 @@ export function TrendChart({ data, height = 280 }: { data: DayPoint[]; height?: 
             >
               <defs>
                 <linearGradient id="rev-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={CHART.revenue} stopOpacity={0.22} />
-                  <stop offset="100%" stopColor={CHART.revenue} stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={C.revenue} stopOpacity={0.22} />
+                  <stop offset="100%" stopColor={C.revenue} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               {ticks.map(t => (
                 <g key={t}>
-                  <line x1={m.left} x2={m.left + w} y1={y(t)} y2={y(t)} stroke={CHART.grid} />
-                  <text x={m.left - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={CHART.axis}>{short(t)}</text>
+                  <line x1={m.left} x2={m.left + w} y1={y(t)} y2={y(t)} stroke={C.grid} />
+                  <text x={m.left - 8} y={y(t) + 4} textAnchor="end" fontSize={11} fill={C.axis}>{short(t)}</text>
                 </g>
               ))}
               {data.map((d, i) => ((i % labelEvery === 0 && data.length - 1 - i >= Math.ceil(labelEvery / 2) + 1) || i === data.length - 1) && (
-                <text key={d.date} x={x(i)} y={height - 6} textAnchor={i === data.length - 1 ? 'end' : i === 0 ? 'start' : 'middle'} fontSize={11} fill={CHART.axis}>{dayLabel(d.date)}</text>
+                <text key={d.date} x={x(i)} y={height - 6} textAnchor={i === data.length - 1 ? 'end' : i === 0 ? 'start' : 'middle'} fontSize={11} fill={C.axis}>{dayLabel(d.date)}</text>
               ))}
               <path d={area} fill="url(#rev-fill)" />
-              <path d={line('revenue')} fill="none" stroke={CHART.revenue} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-              <path d={line('profit')} fill="none" stroke={CHART.profit} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+              <path d={line('revenue')} fill="none" stroke={C.revenue} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+              <path d={line('profit')} fill="none" stroke={C.profit} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
               {hover == null && data.length > 0 && (
                 <>
-                  <circle cx={x(data.length - 1)} cy={y(data[data.length - 1]!.revenue)} r={4} fill={CHART.revenue} stroke={CHART.surface} strokeWidth={2} />
-                  <circle cx={x(data.length - 1)} cy={y(data[data.length - 1]!.profit)} r={4} fill={CHART.profit} stroke={CHART.surface} strokeWidth={2} />
+                  <circle cx={x(data.length - 1)} cy={y(data[data.length - 1]!.revenue)} r={4} fill={C.revenue} stroke={C.surface} strokeWidth={2} />
+                  <circle cx={x(data.length - 1)} cy={y(data[data.length - 1]!.profit)} r={4} fill={C.profit} stroke={C.surface} strokeWidth={2} />
                 </>
               )}
               {hd && hover != null && (
                 <>
-                  <line x1={x(hover)} x2={x(hover)} y1={m.top} y2={m.top + h} stroke={CHART.axis} strokeDasharray="3 3" />
-                  <circle cx={x(hover)} cy={y(hd.revenue)} r={4.5} fill={CHART.revenue} stroke={CHART.surface} strokeWidth={2} />
-                  <circle cx={x(hover)} cy={y(hd.profit)} r={4.5} fill={CHART.profit} stroke={CHART.surface} strokeWidth={2} />
+                  <line x1={x(hover)} x2={x(hover)} y1={m.top} y2={m.top + h} stroke={C.axis} strokeDasharray="3 3" />
+                  <circle cx={x(hover)} cy={y(hd.revenue)} r={4.5} fill={C.revenue} stroke={C.surface} strokeWidth={2} />
+                  <circle cx={x(hover)} cy={y(hd.profit)} r={4.5} fill={C.profit} stroke={C.surface} strokeWidth={2} />
                 </>
               )}
             </svg>
@@ -195,8 +234,8 @@ export function TrendChart({ data, height = 280 }: { data: DayPoint[]; height?: 
           {hd && hover != null && (
             <Tooltip x={x(hover)} y={y(hd.revenue)} width={width}>
               <p className="mb-1 font-semibold text-ink">{weekday(hd.date)}</p>
-              <p className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-1.5 text-ink/60"><Swatch color={CHART.revenue} />Revenue</span><span className="font-semibold text-ink">{formatMoney(hd.revenue)}</span></p>
-              <p className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-1.5 text-ink/60"><Swatch color={CHART.profit} />Profit</span><span className="font-semibold text-ink">{formatMoney(hd.profit)}</span></p>
+              <p className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-1.5 text-ink/60"><Swatch color={C.revenue} />Revenue</span><span className="font-semibold text-ink">{formatMoney(hd.revenue)}</span></p>
+              <p className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-1.5 text-ink/60"><Swatch color={C.profit} />Profit</span><span className="font-semibold text-ink">{formatMoney(hd.profit)}</span></p>
               <p className="mt-1 text-ink/50">{hd.transactions} sales</p>
             </Tooltip>
           )}
@@ -208,6 +247,7 @@ export function TrendChart({ data, height = 280 }: { data: DayPoint[]; height?: 
 
 // ── Busiest hours (columns) ──────────────────────────────────────────────────
 export function HourChart({ data, height = 250 }: { data: { hour: number; revenue: number; transactions: number }[]; height?: number }) {
+  const C = useChartColors();
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const m = { top: 8, right: 4, bottom: 22, left: 4 };
@@ -237,16 +277,16 @@ export function HourChart({ data, height = 250 }: { data: { hour: number; revenu
               <g key={d.hour}>
                 <path
                   d={`M${cx - bw / 2},${m.top + h} v${-Math.max(bh - 4, 0)} q0,-4 4,-4 h${bw - 8} q4,0 4,4 v${Math.max(bh - 4, 0)} z`}
-                  fill={CHART.revenue}
+                  fill={C.revenue}
                   opacity={hover === i ? 1 : isPeak ? 1 : 0.4}
                 />
                 {(i % 2 === 0 || isPeak) && (
-                  <text x={cx} y={height - 6} textAnchor="middle" fontSize={11} fill={CHART.axis}>{label(d.hour)}</text>
+                  <text x={cx} y={height - 6} textAnchor="middle" fontSize={11} fill={C.axis}>{label(d.hour)}</text>
                 )}
               </g>
             );
           })}
-          <line x1={m.left} x2={m.left + w} y1={m.top + h} y2={m.top + h} stroke={CHART.grid} />
+          <line x1={m.left} x2={m.left + w} y1={m.top + h} y2={m.top + h} stroke={C.grid} />
         </svg>
       )}
       {hd && hover != null && (
@@ -261,12 +301,14 @@ export function HourChart({ data, height = 250 }: { data: { hour: number; revenu
 
 // ── Ranked horizontal bars ───────────────────────────────────────────────────
 export function BarList({
-  items, color = CHART.revenue, format = (n: number) => formatMoney(n, 'UGX', { short: true }),
+  items, color, format = (n: number) => formatMoney(n, 'UGX', { short: true }),
 }: {
   items: { label: string; value: number; note?: string }[];
   color?: string;
   format?: (n: number) => string;
 }) {
+  const C = useChartColors();
+  const barColor = color ?? C.revenue;
   const [hover, setHover] = useState<number | null>(null);
   const max = Math.max(...items.map(i => i.value), 1);
   return (
@@ -283,7 +325,7 @@ export function BarList({
           <div className="h-2 overflow-hidden rounded-full bg-sand-dark">
             <div
               className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.max((it.value / max) * 100, 2)}%`, background: color, opacity: hover == null || hover === i ? 1 : 0.45 }}
+              style={{ width: `${Math.max((it.value / max) * 100, 2)}%`, background: barColor, opacity: hover == null || hover === i ? 1 : 0.45 }}
             />
           </div>
         </li>

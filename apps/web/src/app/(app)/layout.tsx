@@ -9,6 +9,7 @@ import { getIndustryConfig } from '@/lib/industries';
 import { resolveNavPath } from '@/lib/routes';
 import { SettingsNav } from '@/components/settings-nav';
 import { DevSeedButton } from '@/components/dev-seed-button';
+import { ThemeFab } from '@/components/theme-fab';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 function Icon({ name }: { name: string }) {
@@ -255,7 +256,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      {/* Development-only: seeds the signed-in business with type-appropriate demo data. */}
+      {/* Quick theme switcher (bottom-right) + development-only demo seeder above it. */}
+      <ThemeFab />
       <DevSeedButton />
     </div>
   );

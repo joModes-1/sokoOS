@@ -157,7 +157,7 @@ export default function TransfersPage() {
                   className="form-input w-16"
                 />
                 {items.length > 1 && (
-                  <button onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-danger hover:text-red-700 px-1">×</button>
+                  <button onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-danger hover:text-danger-dark px-1">×</button>
                 )}
               </div>
             ))}
