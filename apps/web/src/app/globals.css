@@ -226,6 +226,7 @@ html, body {
 .app-shell {
   display: flex;
   height: 100vh;
+  height: 100dvh; /* mobile: visible viewport, so page bottoms aren't hidden behind the browser bar */
   overflow: hidden;
 }
 

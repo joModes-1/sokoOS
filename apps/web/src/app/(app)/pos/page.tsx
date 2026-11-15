@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useProducts } from '@/hooks/use-queries';
 import { formatMoney } from '@/lib/format';
 import { Button, SearchInput, Badge, Alert, Spinner } from '@/components/ui';
@@ -28,6 +28,8 @@ export default function POSPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState<{ id: string; receiptNumber: string; totalMinor: number } | null>(null);
+
+  const orderRef = useRef<HTMLDivElement>(null);
 
   const { data: products, isLoading: loadingProducts } = useProducts({ q });
 
@@ -131,7 +133,7 @@ export default function POSPage() {
         {loadingProducts ? (
           <div className="flex justify-center py-16"><Spinner /></div>
         ) : (
-          <div className="flex-1 overflow-y-auto max-h-[55vh] lg:max-h-none">
+          <div className="flex-1 lg:overflow-y-auto">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {(products?.items ?? []).map(product =>
                 product.variants.filter(v => v.isActive).map(variant => (
@@ -163,8 +165,19 @@ export default function POSPage() {
         )}
       </div>
 
+      {/* Phones: sticky bar while browsing products; settles into place above the order panel */}
+      {cart.length > 0 && (
+        <button
+          onClick={() => orderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className="lg:hidden sticky bottom-0 z-10 -mt-3 flex items-center justify-between w-full rounded-xl bg-sunset text-white px-4 py-3 shadow-lg font-semibold text-sm"
+        >
+          <span>View order · {cart.reduce((n, i) => n + i.qty, 0)} item{cart.reduce((n, i) => n + i.qty, 0) > 1 ? 's' : ''}</span>
+          <span className="font-display">{formatMoney(cartTotal)} ↓</span>
+        </button>
+      )}
+
       {/* Cart */}
-      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col bg-white rounded-xl border border-border">
+      <div ref={orderRef} className="w-full lg:w-80 flex-shrink-0 flex flex-col bg-white rounded-xl border border-border scroll-mt-4">
         <div className="p-4 border-b border-border">
           <h2 className="font-semibold text-ink">Order</h2>
           {cart.length > 0 && (
@@ -173,7 +186,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[40vh] lg:max-h-none">
+        <div className="flex-1 lg:overflow-y-auto p-4 space-y-3">
           {cart.length === 0 ? (
             <p className="text-center text-sm text-ink/30 py-8">Add products to start a sale</p>
           ) : (
@@ -189,12 +202,12 @@ export default function POSPage() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => updateQty(item.variantId, item.qty - 1)}
-                    className="w-6 h-6 rounded-full bg-sand hover:bg-peach text-ink font-bold text-sm flex items-center justify-center"
+                    className="w-8 h-8 lg:w-6 lg:h-6 rounded-full bg-sand hover:bg-peach text-ink font-bold text-sm flex items-center justify-center"
                   >−</button>
                   <span className="w-6 text-center text-sm font-medium">{item.qty}</span>
                   <button
                     onClick={() => updateQty(item.variantId, item.qty + 1)}
-                    className="w-6 h-6 rounded-full bg-sand hover:bg-peach text-ink font-bold text-sm flex items-center justify-center"
+                    className="w-8 h-8 lg:w-6 lg:h-6 rounded-full bg-sand hover:bg-peach text-ink font-bold text-sm flex items-center justify-center"
                   >+</button>
                 </div>
               </div>
