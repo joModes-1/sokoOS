@@ -40,19 +40,19 @@ services:
         value: mock
       - key: WHATSAPP_PROVIDER
         value: mock
-      # ── Email (SMTP) ───────────────────────────────────────────────────────
+      # ── Email (SMTP — Resend) ───────────────────────────────────────────────
       - key: SMTP_HOST
-        value: smtp.gmail.com
+        value: smtp.resend.com
       - key: SMTP_PORT
-        value: "587"
+        value: "465"
       - key: SMTP_SECURE
-        value: "false"
+        value: "true"
       - key: SMTP_USER
-        value: jomodes765@gmail.com
+        value: resend
       - key: SMTP_PASS
-        sync: false          # Gmail app password — set in the Render dashboard, never commit it
+        sync: false          # Resend API key — set in the Render dashboard, never commit it
       - key: EMAIL_FROM
-        value: "SokoOS <jomodes765@gmail.com>"
+        value: "SokoOS <onboarding@resend.dev>"
       - key: SUPPORT_EMAIL
         value: jomodes765@gmail.com
 
